@@ -10,6 +10,8 @@
 
 Key 默认仅本次运行有效；勾选保存后写入 Windows 凭据管理器。不同接口地址分开保存，不进入源码、设置 JSON、浏览器持久存储或安装包。
 
+Release同时提供CodeDesk-Portable-1.0.0-win64.zip。解压完整目录后双击CodeDesk.exe即可运行，此版本已通过独立启动、资源和随包MCP验证。本次设备应用程序控制策略拦截未签名Setup安装器，安装验收尚未完成；不建议关闭系统保护，受同类策略管理的电脑请先向设备管理员确认允许的安装方式。
+
 ## 界面
 
 ![桌面主界面](docs/screenshots/01-main.png)
@@ -55,6 +57,8 @@ Key 默认仅本次运行有效；勾选保存后写入 Windows 凭据管理器�
 agent/：独立循环、工具、凭据、撤销和MCP。server/：本地API。ui/：完整前端。tests/：回归检查。sample_workspace/：首次体验项目。scripts/：打包及GitHub发布。docs/：截图、实际工具记录、验证、演示、发布说明。report.md：设计报告。
 
 文档：[构建](docs/build.md)、[验证](docs/validation.md)、[运行记录](docs/trace.md)、[演示](docs/demo-guide.md)、[发布](docs/release-notes.md)、[设计报告](report.md)。
+
+[实际界面与MCP演示视频](demo.mp4) 展示文件预览、Key配置入口及真实MCP调用，不含真实模型Key或模型任务验收。
 
 ## 使用边界
 

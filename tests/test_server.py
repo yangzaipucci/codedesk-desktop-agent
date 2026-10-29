@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -8,6 +9,7 @@ from fastapi.testclient import TestClient
 
 from agent.runtime import Runtime
 from agent.settings import Settings
+from agent.tools import Tools
 from server.app import create_app
 
 
@@ -60,3 +62,25 @@ class ServerTests(unittest.TestCase):
     def test_invalid_edit_path_does_not_escape_workspace(self):
         response = self.client.get("/api/file?path=../outside.txt", headers=self.headers)
         self.assertEqual(response.status_code, 400)
+
+    def test_undo_api_restores_file_and_informs_model(self):
+        root = self.settings.directory.parent
+        with patch.dict(os.environ, {"CODEDESK_DATA_DIR": str(self.settings.directory)}):
+            tools = Tools(root)
+            tools.write("undo.txt", "before")
+            change = tools.edit("undo.txt", "before", "after")
+            self.runtime.reset_context(str(root))
+            response = self.client.post("/api/undo", headers=self.headers, json={"change_id": change["change_id"]})
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual((root / "undo.txt").read_text(), "before")
+            self.assertIn("撤销", self.runtime.messages[-1]["content"])
+
+    def test_undo_api_rejects_concurrent_changes(self):
+        root = self.settings.directory.parent
+        with patch.dict(os.environ, {"CODEDESK_DATA_DIR": str(self.settings.directory)}):
+            tools = Tools(root)
+            change = tools.write("undo.txt", "after")
+            (root / "undo.txt").write_text("manual change")
+            response = self.client.post("/api/undo", headers=self.headers, json={"change_id": change["change_id"]})
+            self.assertGreaterEqual(response.status_code, 400)
+            self.assertEqual((root / "undo.txt").read_text(), "manual change")
