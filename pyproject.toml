@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "codedesk-agent"
-version = "1.0.1"
+version = "1.1.0"
 description = "Desktop coding agent with visible tools and MCP"
 requires-python = ">=3.11,<3.14"
 dependencies = [
@@ -13,6 +13,7 @@ dependencies = [
   "pydantic==2.11.7", "pydantic-core==2.33.2", "pydantic-settings==2.10.1",
   "sse-starlette==2.3.6", "pythonnet==3.0.5; sys_platform == 'win32'",
   "cryptography==45.0.5", "websockets==15.0.1",
+  "pypdf==6.21.4", "ddgs==9.16.1",
 ]
 
 [project.optional-dependencies]

@@ -31,7 +31,11 @@ SolidCompression=yes
 WizardStyle=modern
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
+#ifdef RuntimeBundle
+UninstallDisplayIcon={app}\runtime\pythonw.exe
+#else
 UninstallDisplayIcon={app}\CodeDesk.exe
+#endif
 CloseApplications=yes
 SetupLogging=yes
 #ifdef SignedBuild
@@ -48,11 +52,20 @@ VersionInfoDescription=UNSIGNED DEVELOPMENT BUILD - NOT RELEASE APPROVED
 Name: "desktopicon"; Description: "Create a desktop shortcut"; Flags: checkedonce
 
 [Files]
-Source: "{#SourceRoot}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#SourceRoot}\*"; DestDir: "{app}"; Excludes: "*.pyc,*.pyo"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
+#ifdef RuntimeBundle
+Name: "{group}\CodeDesk"; Filename: "{app}\runtime\pythonw.exe"; Parameters: "-m app"; WorkingDir: "{app}"
+Name: "{autodesktop}\CodeDesk"; Filename: "{app}\runtime\pythonw.exe"; Parameters: "-m app"; WorkingDir: "{app}"; Tasks: desktopicon
+#else
 Name: "{group}\CodeDesk"; Filename: "{app}\CodeDesk.exe"
 Name: "{autodesktop}\CodeDesk"; Filename: "{app}\CodeDesk.exe"; Tasks: desktopicon
+#endif
 
 [Run]
+#ifdef RuntimeBundle
+Filename: "{app}\runtime\pythonw.exe"; Parameters: "-m app"; WorkingDir: "{app}"; Description: "Launch CodeDesk"; Flags: nowait postinstall skipifsilent
+#else
 Filename: "{app}\CodeDesk.exe"; Description: "Launch CodeDesk"; Flags: nowait postinstall skipifsilent
+#endif

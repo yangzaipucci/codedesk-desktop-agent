@@ -9,6 +9,7 @@ import mimetypes
 import os
 from pathlib import Path
 import signal
+import sys
 import subprocess
 import tempfile
 
@@ -23,10 +24,10 @@ def definition(name, description, properties, required):
 
 
 DEFINITIONS = [
-    definition("read", "Read a workspace file. Text returns numbered lines (offset is 1-based), pagination and remaining lines. Images return image content blocks, never base64 in text.", {"path": {"type": "string"}, "offset": {"type": "integer", "minimum": 1}, "limit": {"type": "integer", "minimum": 1, "maximum": 500}}, ["path"]),
+    definition("read", "Read a workspace file. Text and text-based PDF/DOCX return numbered lines (offset is 1-based), pagination and remaining lines. Scanned PDFs need OCR. Images return image content blocks, never base64 in text.", {"path": {"type": "string"}, "offset": {"type": "integer", "minimum": 1}, "limit": {"type": "integer", "minimum": 1, "maximum": 500}}, ["path"]),
     definition("write", "Atomically write UTF-8 content, creating parents. Overwrite reports old/new line counts and diff. Read an existing file before changing it.", {"path": {"type": "string"}, "content": {"type": "string"}}, ["path", "content"]),
     definition("edit", "Replace exactly one occurrence of old with new. Zero or multiple matches fail without modifying the file. Supply more context on failure. Never rewrite the whole file for a small edit.", {"path": {"type": "string"}, "old": {"type": "string"}, "new": {"type": "string"}}, ["path", "old", "new"]),
-    definition("bash", "Run a command in the workspace. On Windows the shell is PowerShell, not Bash: use PowerShell syntax. Returns bounded stdout, stderr, exit_code, timed_out. Nonzero exits are normal tool results. Use for search, git, packages and tests. Timeout max 120 seconds.", {"command": {"type": "string"}, "timeout": {"type": "number", "minimum": 0.1, "maximum": 120}}, ["command"]),
+    definition("bash", "Run a command in the workspace. On Windows use PowerShell syntax. Can query public HTTPS APIs with Invoke-RestMethod or web pages with Invoke-WebRequest -UseBasicParsing, respecting the user's online preference. Returns bounded stdout, stderr, exit_code, timed_out. Use for git, packages, tests and live public information. Timeout max 120 seconds.", {"command": {"type": "string"}, "timeout": {"type": "number", "minimum": 0.1, "maximum": 120}}, ["command"]),
 ]
 
 
@@ -83,6 +84,12 @@ class Tools:
             raise ToolError("offset 从 1 开始。")
         if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 500:
             raise ToolError("limit 必须为 1–500。")
+        if target.suffix.lower() in {'.pdf','.docx'}:
+            from agent.documents import read_document
+            try:
+                return read_document(target,path,offset,limit,MAX_OUTPUT)
+            except Exception as error:
+                raise ToolError(str(error) if isinstance(error,ValueError) else '文档无法解析，请检查文件格式。') from error
         selected, used, total, page_full, line_truncated = [], 0, 0, False, False
         # Keep only a bounded prefix of each line, including for multi-GiB lines.
         # Scan the rest without retaining it so remaining_lines is exact.
@@ -154,6 +161,9 @@ class Tools:
         else:
             args, options = ["/bin/bash", "-c", command], {"start_new_session": True}
         env = {k: v for k, v in os.environ.items() if not any(term in k.upper() for term in ("API_KEY", "APIKEY", "CODEDESK_TOKEN"))}
+        if not getattr(sys, 'frozen', False):
+            env['PATH'] = str(Path(sys.executable).parent) + os.pathsep + env.get('PATH', '')
+            env['CODEDESK_PROJECT_PYTHON'] = '1'
         process = await asyncio.create_subprocess_exec(*args, cwd=self.workspace, env=env, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, **options)
 
         async def collect(stream, channel):

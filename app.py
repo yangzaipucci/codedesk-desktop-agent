@@ -32,7 +32,7 @@ def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind(("127.0.0.1", args.port))
     port = sock.getsockname()[1]
-    config = uvicorn.Config(app, host="127.0.0.1", port=port, access_log=False, log_config=None, log_level="error", loop="asyncio")
+    config = uvicorn.Config(app, host="127.0.0.1", port=port, access_log=False, log_config=None, log_level="error", loop="asyncio", timeout_graceful_shutdown=5)
     server = uvicorn.Server(config)
     if args.headless:
         print(f"CodeDesk backend: http://127.0.0.1:{port}", flush=True)
@@ -48,6 +48,14 @@ def main():
             selected = window.create_file_dialog(webview.FileDialog.FOLDER)
             return selected[0] if selected else None
 
+        def open_url(self, url):
+            from urllib.parse import urlparse
+            import webbrowser
+            parsed = urlparse(str(url))
+            if parsed.scheme not in {'https', 'http'} or not parsed.hostname or parsed.username or parsed.password:
+                return False
+            return webbrowser.open(url)
+
     def backend():
         # ProactorEventLoop on Windows supports cancellable subprocess pipes.
         asyncio.set_event_loop(asyncio.new_event_loop())
@@ -60,7 +68,7 @@ def main():
         if not thread.is_alive() or time.monotonic() > deadline:
             raise RuntimeError("本地服务启动失败，请重新打开应用。")
         time.sleep(0.05)
-    window = webview.create_window("CodeDesk · 桌面智能体", f"http://127.0.0.1:{port}", js_api=Bridge(), width=1440, height=920, min_size=(1120, 720), background_color="#101416", text_select=True)
+    window = webview.create_window("CodeDesk · 智能代码工作台", f"http://127.0.0.1:{port}", js_api=Bridge(), width=1540, height=960, min_size=(1120, 720), background_color="#f5f6fa", text_select=True)
     try:
         webview.start(debug=False, gui="edgechromium")
     finally:

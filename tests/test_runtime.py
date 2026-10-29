@@ -34,6 +34,7 @@ class RuntimeTests(unittest.IsolatedAsyncioTestCase):
         self.work.mkdir()
         self.settings = Settings(self.root / "state")
         self.settings.value["workspace"] = str(self.work)
+        self.settings.value['online_enabled'] = False
         self.events = []
 
     def tearDown(self):
@@ -41,6 +42,36 @@ class RuntimeTests(unittest.IsolatedAsyncioTestCase):
 
     async def sink(self, event):
         self.events.append(event)
+
+    async def test_chat_restore_ignores_newer_task_sessions(self):
+        chat=Runtime(self.settings,SequenceProvider([{'content':'saved answer'}]))
+        await chat.run('saved question',self.sink,mode='ask')
+        queued=Runtime(self.settings,SequenceProvider([{'content':'task answer'}]))
+        queued.persistence_group='task'
+        await queued.run('task question',self.sink)
+        restored=Runtime(self.settings,restore=True)
+        self.assertEqual(restored.session_id,chat.session_id)
+        self.assertEqual(restored.mode,'ask')
+        self.assertEqual(restored.messages[-1]['content'],'saved answer')
+        self.assertEqual(restored.events[-1]['status'],'completed')
+
+    def test_legacy_event_only_sessions_restore_visible_history(self):
+        import uuid
+        folder=self.settings.directory/'sessions';folder.mkdir()
+        identity=uuid.uuid4().hex
+        (folder/(identity+'.json')).write_text(json.dumps({'session_id':identity,'workspace':str(self.work),'events':[{'type':'user','text':'old question'},{'type':'assistant_delta','text':'old answer'}]}),encoding='utf-8')
+        restored=Runtime(self.settings,restore=True)
+        self.assertEqual(restored.session_id,identity)
+        self.assertTrue(any(m.get('content')=='old answer' for m in restored.messages))
+
+    def test_restore_never_crosses_workspace_or_persists_images(self):
+        chat=Runtime(self.settings);chat.reset_context(str(self.work))
+        chat.messages.append({'role':'user','content':[{'type':'text','text':'context'},{'type':'image_url','image_url':{'url':'data:image/png;base64,PRIVATE'}}]})
+        chat.persist()
+        record=(self.settings.directory/'sessions'/(chat.session_id+'.json')).read_text(encoding='utf-8')
+        self.assertNotIn('PRIVATE',record)
+        self.settings.value['workspace']=str(self.root)
+        self.assertEqual(Runtime(self.settings,restore=True).events,[])
 
     async def test_failure_recovery_and_trace(self):
         (self.work / "demo.py").write_text("a = 1\nb = 1\n")

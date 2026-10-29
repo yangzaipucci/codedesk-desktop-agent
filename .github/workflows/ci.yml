@@ -12,5 +12,42 @@ jobs:
           python-version: '3.12'
           cache: pip
       - run: python -m pip install -r requirements-lock.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
       - run: python -m unittest discover -s tests -v
       - run: node --check ui/app.js
+  package:
+    needs: windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: python -m pip install -r requirements-lock.txt
+      - run: npm ci
+      - run: npm run build
+      - name: Locate Inno Setup
+        shell: pwsh
+        run: |
+          if (-not (Test-Path 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe') -and -not (Test-Path 'C:\Program Files\Inno Setup 6\ISCC.exe')) {
+            choco install innosetup --version=6.7.3 --yes --no-progress
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+      - run: python scripts/build_portable.py --installer
+      - name: Install, start, call MCP, uninstall
+        run: python scripts/smoke_runtime_installer.py --installer release/portable/1.1.0/CodeDesk-Setup-1.1.0-unsigned.exe --bundle build/portable/1.1.0/CodeDesk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: codedesk-windows-preview
+          path: release/portable/1.1.0/

@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-2026-10-29：本机没有受信任的代码签名证书，也没有 Windows SDK SignTool。已实现证书预检查、完整原生二进制签名、Inno 安装临时组件/卸载器签名、安装验收和 GitHub 发布门禁。**当前没有可声明为“可信签名安装包”的新版本，1.0.1 尚未正式发布。**
+2026-10-29：本机没有受信任的代码签名证书，也没有 Windows SDK SignTool。已实现证书预检查、完整原生二进制签名、Inno 安装临时组件/卸载器签名、安装验收和 GitHub 发布门禁。**当前没有可声明为“可信签名安装包”的新版本，1.1.0 尚未正式发布。**
 
 GitHub 上的 1.0.0 为未签名预览。旧便携版在本机已运行成功；旧 Setup 被 Windows 智能应用控制阻止，安装/卸载未通过。不能用便携版可启动推断安装包能通过设备策略。
 
@@ -48,16 +48,16 @@ $env:CODEDESK_TIMESTAMP_URL = 'http://timestamp.digicert.com'
 工具检查任一步失败均返回非零退出码。已有可信第三方签名保留并验证；未签名原生文件用指定证书签名；异常签名直接拒绝。项目签名必须有可信时间戳，SignTool 的警告返回码也视为失败。输出为：
 
 - `build/signed/application/CodeDesk/`：完整签名目录。
-- `release/signed/1.0.1/CodeDesk-Setup-1.0.1.exe`：安装器。
-- 同目录 `CodeDesk-Portable-1.0.1-win64.zip`、`signing-manifest.json` 和 `SHA256SUMS.txt`。
+- `release/signed/1.1.0/CodeDesk-Setup-1.1.0.exe`：安装器。
+- 同目录 `CodeDesk-Portable-1.1.0-win64.zip`、`signing-manifest.json` 和 `SHA256SUMS.txt`。
 
 在没有安装过 CodeDesk 的 Windows 测试账户/虚拟机执行自动验收。验收使用项目内唯一临时目录，保留系统保护；已有安装记录时直接拒绝，避免覆盖用户安装：
 
 ```powershell
 .venv\Scripts\python.exe scripts\verify_installation.py `
   --directory build\signed\application\CodeDesk `
-  --installer release\signed\1.0.1\CodeDesk-Setup-1.0.1.exe `
-  --report release\signed\1.0.1\signing-manifest.json
+  --installer release\signed\1.1.0\CodeDesk-Setup-1.1.0.exe `
+  --report release\signed\1.1.0\signing-manifest.json
 ```
 
 验收先复核签名和哈希，再静默安装，核对安装后的文件、卸载器签名/时间戳，启动已安装的独立后端，读取界面资源和示例项目，调用真实 MCP 子进程，最后卸载。仅全部通过才生成 `installation-acceptance.json` 的 `passed` 结果。失败保留本地 `.build-temp/acceptance-*/` 日志；不会生成虚假成功记录。若安装中途失败或卸载器签名异常，可能留有测试安装，应在该测试环境检查后清理，禁止执行未验证的卸载程序。
@@ -82,8 +82,13 @@ $env:CODEDESK_TIMESTAMP_URL = 'http://timestamp.digicert.com'
 .venv\Scripts\python.exe scripts\build_windows.py --unsigned --iscc '.build-temp\inno\ISCC.exe'
 ```
 
-开发包写到 `release/unsigned/1.0.1/`，文件名含 `-unsigned`，清单模式为 `unsigned`。这些包会被安装验收和正式发布脚本拒绝；本机无需反复尝试执行已知会被智能应用控制阻止的安装器。
+开发包写到 `release/unsigned/1.1.0/`，文件名含 `-unsigned`，清单模式为 `unsigned`。这些包会被安装验收和正式发布脚本拒绝；本机无需反复尝试执行已知会被智能应用控制阻止的安装器。
 
 本轮实际开发构建编译成功；新版未签名目录包启动也被应用程序控制策略阻止（WinError 4551），不能把旧便携版曾运行成功推广到新开发包。真实签名构建与安装验收仍未执行。
 
 签名不能保证所有 Windows 策略或杀毒产品放行。本流程不关闭智能应用控制/Defender，不添加系统信任根，不使用自签名证书冒充公开受信任的发布者，也不把尚未完成的签名构建描述为已通过安装验收。
+
+
+## 1.1.0 运行环境分发
+
+另提供 scripts/build_portable.py 生成的官方 Python 运行环境源码应用包。运行环境保留原厂签名，CodeDesk 应用仍不冒充已获得可信发布者签名。GitHub CI 的 functional-installation.json 仅记录预览安装功能检查，不替代本文的签名安装验收或 release_check.py 门禁。

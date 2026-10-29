@@ -25,6 +25,7 @@ class ServerTests(unittest.TestCase):
         root = Path(self.temp.name)
         self.settings = Settings(root / "state")
         self.settings.value["workspace"] = str(root)
+        self.settings.value['online_enabled'] = False
         self.runtime = Runtime(self.settings, Echo())
         self.app = create_app(self.settings, "local-test-token", self.runtime)
         self.client = TestClient(self.app)

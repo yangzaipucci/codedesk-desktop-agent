@@ -1,71 +1,52 @@
 # CodeDesk 桌面智能体
 
-可以双击安装、在桌面接入自己的大模型、读文件、改代码和执行测试的 Python 智能体。原生窗口中提供文件树、代码预览、对话、工具过程、diff、命令输出及中断。
+Python 原生桌面代码助手与问答智能体。默认浅色，可切换深色；API Key 在桌面设置中输入。支持 DeepSeek 及 OpenAI 兼容接口，模型回复由用户配置的服务生成。
 
-**分发状态：1.0.0 是未签名预览，本机已验证便携版；Setup 被智能应用控制拦截，安装验收未通过。1.0.1 已补齐签名发布流程，待取得受信任证书后构建并验收，尚未正式发布。** 见 [签名与发布](docs/signing.md)。
+公开仓库：https://github.com/yangzaipucci/codedesk-desktop-agent
 
 ## 三步使用
 
-1. 下载 Release 的 `CodeDesk-Portable-1.0.0-win64.zip`，完整解压后双击 `CodeDesk.exe`。当前预览安装器的限制见下文。
-2. 点击设置，选择服务商，在窗口中填写 Base URL、模型名称和 API Key，测试连接后保存。不修改源码，不把 Key 发到聊天。
-3. 打开项目文件夹，在右侧输入任务。首次启动自带一个有意保留错误的示例项目。
+1. 从 [Release](https://github.com/yangzaipucci/codedesk-desktop-agent/releases) 下载 1.1.0 安装包并安装；也可完整解压便携 ZIP，双击 `Start-CodeDesk.cmd`。
+2. 在右上角“模型与连接”选择服务、模型，输入自己的 API Key，测试后保存。可选保存到 Windows 凭据管理器。
+3. 打开项目文件夹，选择助手模式并发送需求。中间编辑代码，右侧查看结果，底部显示实际命令输出。
 
-Key 默认仅本次运行有效；勾选保存后写入 Windows 凭据管理器。不同接口地址分开保存，不进入源码、设置 JSON、浏览器持久存储或安装包。
+运行环境为 Windows x64 与 Microsoft Edge WebView2 Runtime。分发包自带 Python，不要求老师另装 Python。未配置 Key 时仍可手动编辑、搜索文件和运行终端；模型对话需有效 Key 与网络。
 
-Release同时提供CodeDesk-Portable-1.0.0-win64.zip。解压完整目录后双击CodeDesk.exe即可运行，此版本已通过独立启动、资源和随包MCP验证。本次设备应用程序控制策略拦截未签名Setup安装器，安装验收尚未完成；不建议关闭系统保护，受同类策略管理的电脑请先向设备管理员确认允许的安装方式。
+![浅色桌面工作台](docs/screenshots/01-main.png)
 
-## 界面
+## 可以完成什么
 
-![桌面主界面](docs/screenshots/01-main.png)
-![模型接入](docs/screenshots/02-settings.png)
-![工具与MCP](docs/screenshots/03-tools.png)
+- 多标签代码编辑、语法高亮、查找、折叠、撤销、保存全部、新建文件/目录、项目全文搜索与快速打开。
+- 关联文件与选中代码（Ctrl L）；Agent 读、写、精确编辑、运行测试；修改差异与用户撤销。保存冲突时拒绝覆盖。
+- Agent 执行任务；Plan 只读制定计划，可一键转 Agent；Debug 复现、修复和复测；Ask 只读问答；Multitask 使用独立上下文依次执行多个任务。
+- 实际系统时间、实时天气、通用网页检索、公开网页阅读、Crossref/arXiv 文献检索、可校验的数学计算。来源由 MCP 工具返回，重要事实需核对原网页。读取文本型 PDF、DOCX 及图片。
+- 代码片段、命令和详细工具数据集中在中间区域；右侧保留结果与简短进度。文件栏、对话栏、终端高度均可拖动，双击分界线恢复。
+- 浅深主题、桌面模型配置、模型列表、连接测试、MCP 服务配置、任务中断与运行记录导出。同一工作区最近会话可重启恢复。
 
-## 功能
+四个内置模型工具严格为 **read / write / edit / bash**。联网、计算、时间工具通过独立 MCP 进程接入并标注来源。工具参数、真实输出、diff 与失败记录都可以查看。
 
-- read：逐行分页、行号、剩余行数，图片返回多模态内容块。
-- write：自动建目录、临时文件加原子替换、原新行数及diff。
-- edit：精确唯一替换，找不到或不唯一时拒绝修改。
-- bash：Windows 使用 PowerShell，返回 stdout、stderr、exit_code，提供超时、输出截断和中断。
-- 修改差异查看及用户发起的撤销。撤销校验文件是否又被修改，冲突时拒绝覆盖；它不是第五个模型工具。
-- DeepSeek、OpenAI、通义千问、Kimi、GLM、自定义兼容接口。服务地址和模型可编辑，可获取模型列表。
-- 步数、token估算预算、总超时、重复调用限制。长会话按完整旧轮次裁剪，保持工具消息配对。
-- stdio / Streamable HTTP MCP，外部工具来源标注，随安装包附带独立MCP演示进程。
-- 独立后端、WebSocket、SSE，以及可导出的工具运行记录。
+## 源码启动（3 步）
 
-## 源码三步启动
+1. Windows 安装 Python 3.12 和 Node.js 24，克隆仓库后执行 `python -m venv .venv`。
+2. 执行 `.venv\Scripts\python -m pip install -r requirements-lock.txt`，再执行 `npm ci` 与 `npm run build`。
+3. 执行 `.venv\Scripts\python app.py`，在桌面中填写 Key。
 
-要求 Windows x64、Python 3.12、Microsoft Edge WebView2 Runtime。
+前端源码在 `frontend/`，离线构建产物在 `ui/`；前端不依赖外部 CDN。完整 Python 和 npm 版本锁定文件均入仓库。
 
-1. 克隆仓库进入目录，执行 `python -m venv .venv`。
-2. 执行 `.venv\Scripts\python -m pip install ".[build,test]"`。
-3. 执行 `.venv\Scripts\python app.py`，在桌面设置内填 Key。
+## 验证与构建
 
-网络慢时安装命令可附加 `--index-url https://pypi.tuna.tsinghua.edu.cn/simple`。完整版本锁定见 requirements-lock.txt。安装包自带应用 Python；运行用户项目需要的 Python、Git、Node 等开发工具需另行具备。
+`python -m unittest discover -s tests -v`、`npm test`、`npm run build`。GitHub Actions 在 Windows 执行回归、构建分发包并在独立运行器验证安装/启动/MCP/卸载。
 
-## 无需Key验证MCP
+便携与预览安装包：`python scripts/build_portable.py --installer --iscc "Inno Setup目录\ISCC.exe"`。官方 Python 运行环境校验原始下载哈希，分发包保留文件清单与源码提交。完整签名构建、时间戳及发布门禁见 [签名流程](docs/signing.md)，当前预览安装包文件名明确带 `unsigned`。
 
-设置中点击添加演示服务，再点击检查MCP / 调用演示工具。独立进程返回实际目录、文件名与时间。其他服务可参照 mcp.json，将 mcpServers 内的对象填入设置框。只连接信任的服务。当前每次发现和调用分别建立连接，适合无状态工具，跨调用内存状态和OAuth场景未完整支持。
+独立后端：`python app.py --headless --port 8765`。后端仅监听 127.0.0.1；使用控制台本机会话 token 认证（不是模型 Key）。`POST /api/run` 的 JSON 为 `{"prompt":"任务","mode":"agent"}`，curl.exe 加 `-N` 查看 SSE；`POST /api/stop` 中断，`GET /api/trace` 导出记录。
 
-## 独立后端与验证
+## 数据和边界
 
-运行 `.venv\Scripts\python app.py --headless --port 8765`。终端输出的本机会话token不是模型Key。请求 `/api/run` 时使用 `Authorization: Bearer 本机会话token`，JSON为 `{"prompt":"任务内容"}`，curl.exe 加 `-N` 可见SSE。模型Key可提前在桌面设置中选择系统保存。`POST /api/stop`中断，`GET /api/trace`导出记录。
+Key 默认仅留在内存；选择系统保存后由 Windows 凭据管理器保存，配置 JSON、源码、浏览器持久存储和安装包均不保存真实 Key。设置/会话/撤销快照位于 `%LOCALAPPDATA%\CodeDesk`，对外分享记录前检查项目内容。
 
-自动检查：`.venv\Scripts\python -m unittest discover -s tests -v`，以及 `node --check ui/app.js`。GitHub Actions在Windows运行同类检查。
+文件工具限制所选目录；bash 使用当前用户权限，工作目录不是操作系统沙箱。命令对 Git、网络、依赖和文件的副作用需要人工审阅。撤销只覆盖登记的文件修改。关闭“联网查询”是模型行为约束，不是操作系统断网机制。
 
-正式打包默认要求有效代码签名证书：`.venv\Scripts\python scripts\build_windows.py --iscc "Inno Setup目录\ISCC.exe"`。输出到 `release/signed/1.0.1/`；无证书使用 `--unsigned` 仅生成独立开发包。安装器、临时组件、卸载器及随包原生程序均纳入签名检查，安装验收通过后才能正式发布。详见 [签名与发布](docs/signing.md)。
+本项目提供课程级桌面工作台，尚不包含 Cursor 的扩展市场、完整语言服务器、Tab 预测补全、远程协作与并行工作树。Multitask 为串行队列。扫描 PDF 需 OCR，联网源可能限流或不可达，文献元数据不等于已读全文或已核实同行评审。其他服务商有预设，但本次真实 Key 实测使用 DeepSeek。
 
-## 仓库内容
-
-agent/：独立循环、工具、凭据、撤销和MCP。server/：本地API。ui/：完整前端。tests/：回归检查。sample_workspace/：首次体验项目。scripts/：打包及GitHub发布。docs/：截图、实际工具记录、验证、演示、发布说明。report.md：设计报告。
-
-文档：[构建](docs/build.md)、[签名与发布](docs/signing.md)、[验证](docs/validation.md)、[运行记录](docs/trace.md)、[演示](docs/demo-guide.md)、[历史预览说明](docs/release-notes.md)、[设计报告](report.md)。
-
-[实际界面与MCP演示视频](demo.mp4) 展示文件预览、Key配置入口及真实MCP调用，不含真实模型Key或模型任务验收。
-
-## 使用边界
-
-文件工具限制工作目录；bash按当前用户权限运行，工作目录不是操作系统沙箱。请查看diff与测试结果。撤销只适用于write/edit登记的修改，不能撤销任意命令的全部副作用。
-
-设置、记录和撤销快照位于 %LOCALAPPDATA%\CodeDesk。快照及运行记录可能含项目内容，对外分享前检查。当前不支持重启后恢复完整模型对话，token预算是估算，不是精确账单。
-
-厂商预设不代表逐家使用真实Key验收，模型需支持Chat Completions及function tools。真实联网验收需要用户在桌面输入有效Key。提交时间跨度按本次用户要求不作为交付条件。公开仓库只包含完整源码与材料，安装包放在Release附件，缓存和真实Key不进Git。
+材料：[设计报告](report.md)、[构建说明](docs/build.md)、[验证记录](docs/validation.md)、[现场演示与抽查](docs/demo-guide.md)、[运行记录](docs/trace.md)、[视频](demo.mp4)。

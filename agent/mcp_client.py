@@ -21,8 +21,26 @@ def demo_config() -> dict:
         command, args = str(helper if helper.is_file() else root / "WorkspaceMCP.exe"), []
     else:
         command = sys.executable
+        if Path(command).name.lower() == 'pythonw.exe' and Path(command).with_name('python.exe').is_file():
+            command = str(Path(command).with_name('python.exe'))
         args = [str(Path(__file__).resolve().parents[1] / "mcp_demo.py")]
     return {"workspace-demo": {"transport": "stdio", "command": command, "args": args, "enabled": True}}
+
+
+def online_config():
+    if getattr(sys, 'frozen', False):
+        root = Path(sys._MEIPASS)
+        helper = root / 'mcp/OnlineMCP/OnlineMCP.exe'
+        if not helper.is_file():
+            return {}
+        command, args = str(helper), []
+    else:
+        command = Path(sys.executable)
+        if command.name.lower() == 'pythonw.exe' and command.with_name('python.exe').is_file():
+            command = command.with_name('python.exe')
+        args = [str(Path(__file__).resolve().parents[1] / 'mcp_network.py')]
+        command = str(command)
+    return {'codedesk-online': {'transport': 'stdio', 'command': command, 'args': args, 'enabled': True}}
 
 
 class MCP:

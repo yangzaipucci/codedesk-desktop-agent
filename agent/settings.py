@@ -41,7 +41,7 @@ class Settings:
         self.directory = directory or data_directory()
         self.directory.mkdir(parents=True, exist_ok=True)
         self.path = self.directory / "settings.json"
-        self.value = {"provider": "deepseek", **PRESETS["deepseek"], "workspace": "", "max_steps": 20, "budget_tokens": 100000, "run_timeout": 300, "mcp_servers": {}}
+        self.value = {"provider": "deepseek", **PRESETS["deepseek"], "workspace": "", "max_steps": 20, "budget_tokens": 100000, "run_timeout": 300, "mcp_servers": {}, "online_enabled": True}
         if self.path.exists():
             try:
                 saved = json.loads(self.path.read_text(encoding="utf-8"))
@@ -90,7 +90,7 @@ class Settings:
 
     def save(self, payload: dict) -> dict:
         value = dict(self.value)
-        for name in ("provider", "model", "workspace", "max_steps", "budget_tokens", "run_timeout", "mcp_servers"):
+        for name in ("provider", "model", "workspace", "max_steps", "budget_tokens", "run_timeout", "mcp_servers", "online_enabled"):
             if name in payload:
                 value[name] = payload[name]
         value["base_url"] = validate_endpoint(str(payload.get("base_url", value["base_url"])))
@@ -102,6 +102,8 @@ class Settings:
         value["run_timeout"] = max(10, min(1800, int(value["run_timeout"])))
         if not isinstance(value["mcp_servers"], dict):
             raise ValueError("MCP 配置应为 JSON 对象。")
+        if not isinstance(value["online_enabled"], bool):
+            raise ValueError("联网查询开关应为开启或关闭。")
         if value["workspace"]:
             workspace = Path(value["workspace"]).expanduser().resolve()
             if not workspace.is_dir():

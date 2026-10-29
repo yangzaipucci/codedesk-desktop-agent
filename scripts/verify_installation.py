@@ -46,7 +46,7 @@ def verify_installed(directory, bundle, fingerprint):
     return uninstaller
 
 
-def probe_application(directory, state, log):
+def probe_application(directory, state, log, command=None):
     # Reserve a free local port briefly. Startup failure is caught, never hidden.
     with socket.socket() as sock:
         sock.bind(("127.0.0.1", 0))
@@ -55,7 +55,7 @@ def probe_application(directory, state, log):
     opener = build_opener(ProxyHandler({}))
     base = f"http://127.0.0.1:{port}"
     with log.open("wb") as output:
-        process = subprocess.Popen([str(directory / "CodeDesk.exe"), "--headless", "--port", str(port)], env=env, stdout=output, stderr=output, creationflags=subprocess.CREATE_NO_WINDOW)
+        process = subprocess.Popen([*(command or [str(directory / "CodeDesk.exe")]), "--headless", "--port", str(port)], env=env, stdout=output, stderr=output, creationflags=subprocess.CREATE_NO_WINDOW)
         try:
             deadline = time.monotonic() + 45
             while True:
