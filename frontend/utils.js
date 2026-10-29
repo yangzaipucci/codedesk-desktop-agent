@@ -11,6 +11,15 @@ export function expandCommand(prompt) {
   return match?commands[match[1]]+'\n'+prompt.slice(match[0].length).trim():prompt;
 }
 export function cleanTheme(theme){return theme==='dark'?'dark':'light';}
+export function compactEvents(events){
+  const result=[];
+  for(const event of events){
+    const previous=result.at(-1);
+    if(previous&&['assistant_delta','command_output'].includes(event.type)&&previous.type===event.type&&previous.id===event.id)previous.text+=event.text;
+    else result.push({...event});
+  }
+  return result;
+}
 export function isImage(path){return /\.(png|jpe?g|gif|webp|bmp|ico)$/i.test(path);}
 export function languageLabel(path){return ({py:'Python',js:'JavaScript',mjs:'JavaScript',ts:'TypeScript',tsx:'TypeScript',json:'JSON',html:'HTML',css:'CSS',md:'Markdown',ps1:'PowerShell',yml:'YAML',yaml:'YAML',sh:'Shell'})[path.split('.').pop()]||'纯文本';}
 export function fileGlyph(path){return ({py:'PY',js:'JS',mjs:'JS',ts:'TS',tsx:'TS',json:'{}',html:'<>',css:'#',md:'M',ps1:'PS'})[path.split('.').pop()]||'·';}

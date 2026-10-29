@@ -2,6 +2,7 @@ import {build} from 'esbuild';
 import {copyFile, mkdir,readFile,writeFile,readdir} from 'node:fs/promises';
 await mkdir('ui', {recursive:true});
 await build({entryPoints:['frontend/main.js'],bundle:true,outfile:'ui/app.js',format:'iife',target:['chrome100'],minify:true,legalComments:'linked'});
+await writeFile('ui/app.js',(await readFile('ui/app.js','utf8')).replace(/[\t ]+$/gm,''));
 await copyFile('frontend/index.html','ui/index.html');
 await copyFile('frontend/styles.css','ui/style.css');
 let notices='Bundled frontend third-party notices\n\n';
