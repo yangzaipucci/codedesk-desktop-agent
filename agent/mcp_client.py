@@ -16,7 +16,9 @@ from mcp.client.streamable_http import streamablehttp_client
 
 def demo_config() -> dict:
     if getattr(sys, "frozen", False):
-        command, args = str(Path(sys._MEIPASS) / "WorkspaceMCP.exe"), []
+        root = Path(sys._MEIPASS)
+        helper = root / "mcp/WorkspaceMCP/WorkspaceMCP.exe"
+        command, args = str(helper if helper.is_file() else root / "WorkspaceMCP.exe"), []
     else:
         command = sys.executable
         args = [str(Path(__file__).resolve().parents[1] / "mcp_demo.py")]

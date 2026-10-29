@@ -2,9 +2,11 @@
 
 可以双击安装、在桌面接入自己的大模型、读文件、改代码和执行测试的 Python 智能体。原生窗口中提供文件树、代码预览、对话、工具过程、diff、命令输出及中断。
 
+**分发状态：1.0.0 是未签名预览，本机已验证便携版；Setup 被智能应用控制拦截，安装验收未通过。1.0.1 已补齐签名发布流程，待取得受信任证书后构建并验收，尚未正式发布。** 见 [签名与发布](docs/signing.md)。
+
 ## 三步使用
 
-1. 下载 Release 中的 CodeDesk-Setup-1.0.0.exe，安装后双击 CodeDesk 图标。
+1. 下载 Release 的 `CodeDesk-Portable-1.0.0-win64.zip`，完整解压后双击 `CodeDesk.exe`。当前预览安装器的限制见下文。
 2. 点击设置，选择服务商，在窗口中填写 Base URL、模型名称和 API Key，测试连接后保存。不修改源码，不把 Key 发到聊天。
 3. 打开项目文件夹，在右侧输入任务。首次启动自带一个有意保留错误的示例项目。
 
@@ -50,13 +52,13 @@ Release同时提供CodeDesk-Portable-1.0.0-win64.zip。解压完整目录后双�
 
 自动检查：`.venv\Scripts\python -m unittest discover -s tests -v`，以及 `node --check ui/app.js`。GitHub Actions在Windows运行同类检查。
 
-打包：`.venv\Scripts\python scripts\build_windows.py --iscc "Inno Setup目录\ISCC.exe"`。输出 release/CodeDesk-Setup-1.0.0.exe。
+正式打包默认要求有效代码签名证书：`.venv\Scripts\python scripts\build_windows.py --iscc "Inno Setup目录\ISCC.exe"`。输出到 `release/signed/1.0.1/`；无证书使用 `--unsigned` 仅生成独立开发包。安装器、临时组件、卸载器及随包原生程序均纳入签名检查，安装验收通过后才能正式发布。详见 [签名与发布](docs/signing.md)。
 
 ## 仓库内容
 
 agent/：独立循环、工具、凭据、撤销和MCP。server/：本地API。ui/：完整前端。tests/：回归检查。sample_workspace/：首次体验项目。scripts/：打包及GitHub发布。docs/：截图、实际工具记录、验证、演示、发布说明。report.md：设计报告。
 
-文档：[构建](docs/build.md)、[验证](docs/validation.md)、[运行记录](docs/trace.md)、[演示](docs/demo-guide.md)、[发布](docs/release-notes.md)、[设计报告](report.md)。
+文档：[构建](docs/build.md)、[签名与发布](docs/signing.md)、[验证](docs/validation.md)、[运行记录](docs/trace.md)、[演示](docs/demo-guide.md)、[历史预览说明](docs/release-notes.md)、[设计报告](report.md)。
 
 [实际界面与MCP演示视频](demo.mp4) 展示文件预览、Key配置入口及真实MCP调用，不含真实模型Key或模型任务验收。
 

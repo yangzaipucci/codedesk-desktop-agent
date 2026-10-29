@@ -1,15 +1,31 @@
 #define AppName "CodeDesk"
-#define AppVersion "1.0.0"
+#ifndef AppVersion
+#error Build through scripts/build_windows.py to provide AppVersion
+#endif
+#ifndef SourceRoot
+#error Build through scripts/build_windows.py to provide SourceRoot
+#endif
+#ifndef OutputRoot
+#error Build through scripts/build_windows.py to provide OutputRoot
+#endif
+#ifdef SignedBuild
+#define BuildSuffix ""
+#else
+#ifndef UnsignedDevelopment
+#error Choose a signed build or explicitly define UnsignedDevelopment
+#endif
+#define BuildSuffix "-unsigned"
+#endif
 [Setup]
 AppId={{7F648483-55EC-49C4-9DFA-DC8447AD9DB7}
-AppName={#AppName}
+AppName={#AppName}{#BuildSuffix}
 AppVersion={#AppVersion}
 AppPublisher=CodeDesk Course Project
 DefaultDirName={localappdata}\Programs\CodeDesk
 DefaultGroupName=CodeDesk
 PrivilegesRequired=lowest
-OutputDir=..\release
-OutputBaseFilename=CodeDesk-Setup-{#AppVersion}
+OutputDir={#OutputRoot}
+OutputBaseFilename=CodeDesk-Setup-{#AppVersion}{#BuildSuffix}
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
@@ -18,12 +34,21 @@ ArchitecturesInstallIn64BitMode=x64compatible
 UninstallDisplayIcon={app}\CodeDesk.exe
 CloseApplications=yes
 SetupLogging=yes
+#ifdef SignedBuild
+SignTool=codedesk
+SignedUninstaller=yes
+SignedUninstallerDir={#SigningCache}
+SignToolRetryCount=2
+#else
+SignedUninstaller=no
+VersionInfoDescription=UNSIGNED DEVELOPMENT BUILD - NOT RELEASE APPROVED
+#endif
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a desktop shortcut"; Flags: checkedonce
 
 [Files]
-Source: "..\dist\CodeDesk\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#SourceRoot}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\CodeDesk"; Filename: "{app}\CodeDesk.exe"
