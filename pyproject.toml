@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools==80.9.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codedesk-agent"
+version = "1.0.0"
+description = "Desktop coding agent with visible tools and MCP"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+  "fastapi==0.115.12", "uvicorn==0.34.3", "httpx==0.28.1",
+  "pywebview==6.2.1", "keyring==25.7.0", "mcp==1.26.0",
+  "pydantic==2.11.7", "pydantic-core==2.33.2", "pydantic-settings==2.10.1",
+  "sse-starlette==2.3.6", "pythonnet==3.0.5; sys_platform == 'win32'",
+  "cryptography==45.0.5", "websockets==15.0.1",
+]
+
+[project.optional-dependencies]
+build = ["pyinstaller==6.22.3"]
+test = ["pytest==9.0.2"]
+
+[tool.setuptools]
+packages = ["agent", "server"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
