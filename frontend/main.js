@@ -1,7 +1,7 @@
 import {marked} from 'marked';
 import DOMPurify from 'dompurify';
 import {createCodeEditor} from './editor.js';
-import {filterPaths,expandCommand,cleanTheme,compactEvents,isImage,languageLabel,fileGlyph} from './utils.js';
+import {filterPaths,expandCommand,cleanTheme,compactEvents,workspacePath,isImage,languageLabel,fileGlyph} from './utils.js';
 
 const $=id=>document.getElementById(id), token=document.querySelector('meta[name="session-token"]').content;
 const nonce=document.querySelector('meta[name="style-nonce"]').content;
@@ -64,7 +64,7 @@ async function loadFiles(container=$('fileTree'),path='.',depth=0){
 }
 $('refreshFiles').onclick=()=>Promise.all([loadFiles(),refreshDocuments()]).catch(error);
 function renderTabs(){
-  $('tabs').replaceChildren();for(const[path,doc]of documents){const tab=node('div','tab'+(path===active?' active':''));tab.title=doc.title||path;tab.append(node('span','file-icon '+path.split('.').pop(),fileGlyph(path)),node('span','',doc.title||path.split('/').pop()));if(doc.dirty)tab.append(node('span','dirty'));const close=button('×',()=>closeFile(path),'tab-close');close.onclick=e=>{e.stopPropagation();closeFile(path).catch(error);};tab.append(close);tab.onclick=()=>activate(path);$('tabs').append(tab);}if(!documents.size)$('tabs').append(node('span','welcome-tab','欢迎使用'));
+  $('tabs').replaceChildren();for(const[path,doc]of documents){const tab=node('div','tab'+(path===active?' active':''));tab.title=doc.title||path;tab.append(node('span','file-icon '+path.split('.').pop(),fileGlyph(path)),node('span','',doc.title||path.split(/[\\/]/).pop()));if(doc.dirty)tab.append(node('span','dirty'));const close=button('×',()=>closeFile(path),'tab-close');close.onclick=e=>{e.stopPropagation();closeFile(path).catch(error);};tab.append(close);tab.onclick=()=>activate(path);$('tabs').append(tab);}if(!documents.size)$('tabs').append(node('span','welcome-tab','欢迎使用'));
 }
 function activate(path){
   active=path;const doc=documents.get(path);$('editorWelcome').hidden=true;$('diffView').hidden=true;$('imageView').hidden=!doc.image;$('editorHost').hidden=!!doc.image;
@@ -72,6 +72,7 @@ function activate(path){
   $('breadcrumb').textContent=doc.title||(path.split('/').join('  ›  ')+(doc.readOnly?' · 文档预览':''));$('saveFile').disabled=!!doc.image||!!doc.readOnly;$('attachFile').disabled=!!doc.virtual;$('askSelection').disabled=!!doc.image;renderTabs();for(const row of document.querySelectorAll('.file-row'))row.classList.toggle('selected',row.dataset.path===path);
 }
 async function openFile(path,line,column){
+  path=workspacePath(path,config.workspace);
   if(!documents.has(path)){
     if(isImage(path)){
       const result=await api('file?path='+encodeURIComponent(path)),image=result.content?.find(c=>c.type==='image');if(!image)throw new Error('图片无法预览。');documents.set(path,{image:`data:${image.mimeType};base64,${image.data}`,dirty:false});
@@ -83,7 +84,7 @@ async function openFile(path,line,column){
   }
   activate(path);if(line&&!documents.get(path).image)editor.jump(line,column);
 }
-async function saveFile(path=active){const doc=documents.get(path);if(!doc||doc.image||doc.readOnly)return;if(running||terminalRunning)return toast('任务执行中，请完成后再保存。');const result=await api('editor/save',{path,text:doc.text,sha256:doc.sha256});doc.sha256=result.sha256;doc.savedText=doc.text;doc.dirty=false;renderTabs();toast('已保存 '+path.split('/').pop());if(panel==='changes')await loadChanges();}
+async function saveFile(path=active){const doc=documents.get(path);if(!doc||doc.image||doc.readOnly)return;if(running||terminalRunning)return toast('任务执行中，请完成后再保存。');const result=await api('editor/save',{path,text:doc.text,sha256:doc.sha256});doc.sha256=result.sha256;doc.savedText=doc.text;doc.dirty=false;renderTabs();toast('已保存 '+path.split(/[\\/]/).pop());if(panel==='changes')await loadChanges();}
 $('saveFile').onclick=()=>saveFile().catch(error);
 function confirmEdits(text,discard='放弃修改'){return new Promise(resolve=>{$('confirmText').textContent=text;$('confirmDiscard').textContent=discard;$('confirmDialog').showModal();for(const[id,value]of [['confirmCancel','cancel'],['confirmDiscard','discard'],['confirmSave','save']])$(id).onclick=()=>{$('confirmDialog').close();resolve(value);};$('confirmDialog').oncancel=()=>resolve('cancel');});}
 async function closeFile(path){const doc=documents.get(path);if(doc.dirty){const result=await confirmEdits(path+' 有未保存的修改。');if(result==='cancel')return;if(result==='save'){await saveFile(path);if(doc.dirty)return;}}documents.delete(path);editor.close(path);if(active===path){active=null;const next=[...documents.keys()].pop();if(next)activate(next);else{$('editorWelcome').hidden=false;$('editorHost').hidden=true;$('imageView').hidden=true;$('diffView').hidden=true;$('breadcrumb').textContent='开始一个新想法';$('saveFile').disabled=$('askSelection').disabled=$('attachFile').disabled=true;}}renderTabs();}
@@ -157,7 +158,7 @@ function receive(event,fromTask=false){
   else if(event.type==='command_output'){$('terminal').textContent+=event.text;$('terminal').scrollTop=$('terminal').scrollHeight;}
   else if(event.type==='tool_result'){const record=tools.get(event.id);if(!record)return;const result=record.result=event.result;record.card.classList.toggle('failed',!result.ok);record.indicator.textContent=result.ok?'已完成':'未完成';if(!result.ok)record.card.append(node('p','tool-error',(result.error||('执行未成功'+(result.exit_code!==undefined?' · exit '+result.exit_code:''))).split('\n')[0].slice(0,160)));if(result.diff!==undefined)record.card.append(button('查看修改差异',()=>drawDiff(result.path,result.diff)));if(result.change_id)record.card.append(button('撤销这次修改',()=>undoChange(result.change_id)));if(['write','edit'].includes(event.name)&&result.ok)Promise.all([loadFiles(),refreshDocuments()]).then(()=>openFile(result.path)).catch(error);if(event.name==='bash')$('terminal').textContent+='\n[exit '+result.exit_code+(result.timed_out?' · 超时':'')+']\n';}
   else if(event.type==='done'){assistant=null;if(!fromTask)setRunning(false);$('stateText').textContent=({completed:'● 已完成',cancelled:'● 已中断',timeout:'● 已超时',error:'● 需要处理'})[event.status]||'已停止';if(event.tokens)$('stepText').textContent+=' · ≈'+event.tokens+' tokens';if(mode==='plan'&&event.status==='completed'&&!fromTask){$('messages').append(button('切换 Agent，执行这个计划',()=>{setMode('agent');return sendPrompt('请按刚才的计划执行，先检查相关文件，完成修改并验证。');},'execute-plan'));}Promise.all([loadFiles(),refreshDocuments(),panel==='changes'?loadChanges():Promise.resolve()]).catch(error);}
-  if(event.type==='tool_start'&&event.name==='bash'&&!documents.get(active)?.dirty){const path='_command_'+event.id.replace(/[^a-zA-Z0-9_-]/g,'_')+'.ps1';showVirtual(path,'执行命令 · PowerShell',event.arguments.command||'');}
+  if(event.type==='tool_start'&&event.name==='bash'&&!documents.get(active)?.dirty){const path='_command_current.ps1';showVirtual(path,'执行命令 · PowerShell',event.arguments.command||'');}
 }
 async function sendPrompt(text){
   if(running||terminalRunning||!text.trim())return;if(!config.has_key){showSettings();return toast('先在桌面设置中接入模型 API Key。');}

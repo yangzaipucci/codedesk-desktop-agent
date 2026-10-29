@@ -11,6 +11,10 @@ export function expandCommand(prompt) {
   return match?commands[match[1]]+'\n'+prompt.slice(match[0].length).trim():prompt;
 }
 export function cleanTheme(theme){return theme==='dark'?'dark':'light';}
+export function workspacePath(path,workspace){
+  const value=String(path).replaceAll('\\','/'),root=String(workspace||'').replaceAll('\\','/').replace(/\/$/,'');
+  return root&&value.toLowerCase().startsWith(root.toLowerCase()+'/')?value.slice(root.length+1):value.replace(/^\.\//,'');
+}
 export function compactEvents(events){
   const result=[];
   for(const event of events){
