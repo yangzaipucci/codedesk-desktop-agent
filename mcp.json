@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "example-stdio": {
+      "transport": "stdio",
+      "command": "your-mcp-server-command",
+      "args": [],
+      "enabled": false
+    },
+    "example-http": {
+      "transport": "streamable-http",
+      "url": "http://127.0.0.1:8001/mcp",
+      "enabled": false
+    }
+  }
+}
