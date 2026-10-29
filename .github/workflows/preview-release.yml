@@ -1,0 +1,74 @@
+name: Publish validated preview
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: Successful Tests workflow run containing the Windows package
+        required: true
+        type: string
+      source_commit:
+        description: Full application commit verified by that workflow
+        required: true
+        type: string
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+      SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+      SOURCE_COMMIT: ${{ inputs.source_commit }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify successful source workflow
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json,os,re,urllib.request
+          run=os.environ['SOURCE_RUN_ID'];commit=os.environ['SOURCE_COMMIT']
+          assert re.fullmatch(r'[0-9]+',run) and re.fullmatch(r'[a-f0-9]{40}',commit)
+          url='https://api.github.com/repos/'+os.environ['GH_REPO']+'/actions/runs/'+run
+          request=urllib.request.Request(url,headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'})
+          data=json.load(urllib.request.urlopen(request))
+          assert data['status']=='completed' and data['conclusion']=='success' and data['head_sha']==commit
+          assert data['name']=='Tests' and data['event']=='push'
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          name: codedesk-windows-preview
+          path: artifacts
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ inputs.source_run_id }}
+      - name: Verify package and installer receipt
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib,json,os,zipfile
+          from pathlib import Path
+          folder=Path('artifacts')
+          def sha(path):
+              with path.open('rb') as stream:return hashlib.file_digest(stream,'sha256').hexdigest()
+          for line in (folder/'SHA256SUMS.txt').read_text().splitlines():
+              expected,name=line.split(maxsplit=1)
+              assert name in {'CodeDesk-Portable-1.1.0-win64.zip','CodeDesk-Setup-1.1.0-unsigned.exe'} and sha(folder/name)==expected
+          receipt=json.loads((folder/'functional-installation.json').read_text())
+          assert receipt['status']=='passed' and receipt['installer_sha256']==sha(folder/'CodeDesk-Setup-1.1.0-unsigned.exe')
+          with zipfile.ZipFile(folder/'CodeDesk-Portable-1.1.0-win64.zip') as archive:
+              assert archive.testzip() is None
+              manifest=json.loads(archive.read('CodeDesk/portable-manifest.json'))
+              assert manifest['source_commit']==os.environ['SOURCE_COMMIT'] and manifest['version']=='1.1.0'
+          PY
+      - name: Publish explicit unsigned prerelease
+        shell: bash
+        run: |
+          if gh release view v1.1.0 >/dev/null 2>&1; then
+            echo "Release already exists; refusing to overwrite."
+            exit 1
+          fi
+          cp docs/release-notes.md preview-notes.md
+          printf '\n\nWindows 安装、启动、MCP 与卸载功能检查已通过。本版本为未签名预览，功能检查不替代受信任发布者签名。\n' >> preview-notes.md
+          gh release create v1.1.0 artifacts/CodeDesk-Portable-1.1.0-win64.zip artifacts/CodeDesk-Setup-1.1.0-unsigned.exe artifacts/functional-installation.json artifacts/SHA256SUMS.txt --draft --prerelease --target "$SOURCE_COMMIT" --title "CodeDesk 1.1.0 · 完整桌面工作台预览" --notes-file preview-notes.md
+          gh release edit v1.1.0 --draft=false
