@@ -32,7 +32,8 @@ def main(argv=None):
             result=asyncio.run(inspect_patches(args.output,not args.skip_http))
         except (ValueError,OSError,RuntimeError) as error:
             result={'passed':False,'error':str(error)[:500]}
-        print(json.dumps(result,ensure_ascii=False,indent=2))
+        # ASCII escapes keep valid JSON on redirected legacy Windows consoles.
+        print(json.dumps(result,ensure_ascii=True,indent=2))
         if not result['passed']:raise SystemExit(1)
         return result
     from agent.daemon import Daemon
@@ -43,4 +44,4 @@ def main(argv=None):
     elif args.action=='run':result=asyncio.run(worker.run(args.id,args.step_delay))
     else:result=asyncio.run(worker.watch(args.interval,args.once))
     # No model keys are printed. Job details may contain private project data.
-    if result is not None:print(json.dumps(result,ensure_ascii=False,indent=2))
+    if result is not None:print(json.dumps(result,ensure_ascii=True,indent=2))

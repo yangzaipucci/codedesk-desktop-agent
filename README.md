@@ -78,7 +78,7 @@ Python 原生桌面代码助手与问答智能体。默认浅色，可切换深�
 .venv\Scripts\python.exe app.py inspect --output reports
 ```
 
-命令打印 JSON，返回非零状态表示有项未通过，并生成：
+命令打印 JSON（中文以标准 Unicode 转义输出，兼容英文 Windows 控制台；解析后文字不变），返回非零状态表示有项未通过，并生成：
 
 安装/便携版不需要开发环境：在 CodeDesk 运行目录执行 `runtime\python.exe app\app.py inspect --output reports`。其他 CLI 命令也可用这组解释器与入口替换 `.venv\Scripts\python.exe app.py`。
 

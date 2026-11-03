@@ -17,7 +17,7 @@ def inspect(output='reports'):
     from agent.inspection import inspect_patches
     import json
     result = asyncio.run(inspect_patches(output))
-    print(json.dumps(result, ensure_ascii=False, indent=2))
+    print(json.dumps(result, ensure_ascii=True, indent=2))
     return result
 
 
