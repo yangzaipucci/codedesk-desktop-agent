@@ -4,6 +4,10 @@ Python 原生桌面代码助手与问答智能体。默认浅色，可切换深�
 
 公开仓库：https://github.com/yangzaipucci/codedesk-desktop-agent
 
+开发记录：[三天开发日志](docs/development-log.md)（2026-10-27、10-29、11-03） · [修改摘要](CHANGELOG.md) · [逐条提交索引](docs/development/commit-index.md)。10 月 27 日为需求与本地过程记录，另外两天有 Git 提交。
+
+操作教程：[三个补丁与飞书 MCP 视频、字幕和配置](docs/tutorial/README.md)（约 7 分 07 秒，中文配音及字幕；实际操作关键画面，非连续录屏）。飞书真实账号授权需使用者自行完成。
+
 ## 三步使用
 
 1. 从 [Release](https://github.com/yangzaipucci/codedesk-desktop-agent/releases) 下载对应版本安装包并安装；也可完整解压便携 ZIP，双击 `Start-CodeDesk.cmd`。本次源码补丁版本为 **1.2.0**。

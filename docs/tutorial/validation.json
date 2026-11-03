@@ -1,0 +1,28 @@
+{
+  "file": "CodeDesk_Patches_Feishu_MCP_Tutorial.mp4",
+  "duration_seconds": 427.46666666666664,
+  "frames": 6412,
+  "fps": 15,
+  "resolution": [
+    1920,
+    1080
+  ],
+  "speech": "Windows Microsoft Huihui / zh-CN / offline",
+  "captions": "burned-in and SRT",
+  "scope": "real UI keyframes + actual inspection reports + Feishu configuration tutorial; not continuous recording; no Feishu account authorized",
+  "sha256": "e6366808a1d822f370fe14973fb8d192da31e2ea4eeaa050f084002f0a58e727",
+  "validation": {
+    "full_audio_video_decode": "passed",
+    "sampled_caption_frames": 40,
+    "max_frame_mean_absolute_error": 1.7484768840020577,
+    "audio_seconds": 427.433375,
+    "audio_rms_pcm16": 3079.8780172115353,
+    "audio_peak_pcm16": 28065.0,
+    "audio_nonzero_ratio": 0.7625425249022728,
+    "srt_cues": 40,
+    "chapters": 20,
+    "configuration_template": "validated_as_example_without_credentials",
+    "feishu_real_account_connected": false,
+    "visual_review": "passed by video_review agent"
+  }
+}

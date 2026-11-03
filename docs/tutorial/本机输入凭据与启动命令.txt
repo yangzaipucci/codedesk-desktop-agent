@@ -1,0 +1,14 @@
+﻿# 在便携版 CodeDesk 运行目录打开 PowerShell
+$env:APP_ID = Read-Host '飞书 App ID'
+$secret = Read-Host '飞书 App Secret' -AsSecureString
+$env:APP_SECRET = [Net.NetworkCredential]::new(
+    '', $secret
+).Password
+
+# 从这个窗口启动，子进程才会继承凭据
+& .\runtime\pythonw.exe .\app\app.py
+
+# 首次下载预热（不进行账户登录）
+npx.cmd -y @larksuiteoapi/lark-mcp --help
+
+# 不要把 APP_SECRET、访问令牌或私人 MCP URL 交到公开仓库。

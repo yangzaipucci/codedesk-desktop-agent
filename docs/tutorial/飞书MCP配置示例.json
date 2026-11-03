@@ -1,0 +1,16 @@
+{
+  "feishu-docs": {
+    "transport": "stdio",
+    "command": "npx.cmd",
+    "args": [
+      "-y",
+      "@larksuiteoapi/lark-mcp",
+      "mcp",
+      "-l",
+      "zh",
+      "-t",
+      "docx.v1.document.rawContent"
+    ],
+    "enabled": true
+  }
+}
