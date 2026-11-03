@@ -59,7 +59,7 @@ class MCP:
                 if not isinstance(command, str) or not command or not isinstance(args, list) or not all(isinstance(a, str) for a in args):
                     raise ValueError("MCP command 应为字符串，args 应为字符串数组。")
                 # API keys are not inherited. Explicit server-specific env is opt-in.
-                env = {k: v for k, v in os.environ.items() if not any(t in k.upper() for t in ("API_KEY", "APIKEY", "CODEDESK_TOKEN"))}
+                env = {k: v for k, v in os.environ.items() if not any(t in k.upper() for t in ("API_KEY", "APIKEY", "CODEDESK_TOKEN", "CODEDESK_MCP_TOKEN"))}
                 env.update(config.get("env", {}))
                 params = StdioServerParameters(command=command, args=args, env=env, cwd=str(self.workspace))
                 with open(os.devnull, "w") as error_log:
@@ -70,7 +70,18 @@ class MCP:
             elif config.get("transport") == "streamable-http":
                 from agent.settings import validate_endpoint
                 url = validate_endpoint(config["url"])
-                async with streamablehttp_client(url) as (read, write, _):
+                headers = dict(config.get('headers', {}))
+                if not all(isinstance(k, str) and isinstance(v, str) for k, v in headers.items()):
+                    raise ValueError('MCP headers 应为字符串键值。')
+                if config.get('token_env'):
+                    variable = config['token_env']
+                    if not isinstance(variable, str) or not re.fullmatch(r'[A-Z_][A-Z0-9_]*', variable):
+                        raise ValueError('MCP token_env 应为环境变量名。')
+                    token = os.environ.get(variable)
+                    if not token:
+                        raise ValueError('未配置 MCP 连接令牌环境变量。')
+                    headers['Authorization'] = 'Bearer ' + token
+                async with streamablehttp_client(url, headers=headers or None) as (read, write, _):
                     async with ClientSession(read, write) as client:
                         await client.initialize()
                         yield client

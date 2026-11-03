@@ -89,9 +89,9 @@ def main():
             if child.is_dir():shutil.rmtree(child)
             else:child.unlink()
     application.mkdir(exist_ok=True)
-    for name in ['agent','server','ui','sample_workspace']:
+    for name in ['agent','server','ui','sample_workspace','agent_assets']:
         shutil.copytree(ROOT/name,application/name,ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
-    for name in ['app.py','mcp_demo.py','mcp_network.py','LICENSE']:
+    for name in ['app.py','mcp_demo.py','mcp_network.py','LICENSE','AGENTS.md']:
         shutil.copy2(ROOT/name,application/name)
     (destination/'Start-CodeDesk.cmd').write_text('@echo off\nsetlocal\ncd /d "%~dp0"\nstart "" "%~dp0runtime\\pythonw.exe" "%~dp0app\\app.py"\n',encoding='ascii')
     (destination/'使用说明.txt').write_text('双击 Start-CodeDesk.cmd 打开 CodeDesk。\n完整保留 app 和 runtime 文件夹。\n在桌面设置中选择模型服务并填写自己的 API Key。\n支持浅深主题、多标签编辑、项目搜索、文件上下文、终端和五种助手模式。\n',encoding='utf-8-sig')

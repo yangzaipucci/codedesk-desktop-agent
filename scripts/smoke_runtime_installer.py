@@ -34,6 +34,10 @@ def main():
                     raise RuntimeError('Installed-file mismatch: '+record['path'])
             command=[str(installed/'runtime/python.exe'),str(installed/'app/app.py')]
             probe_application(installed,root/'state',root/'application.log',command)
+            subprocess.run(command+['inspect','--output',str(root/'patch-reports')],check=True,timeout=180)
+            for name in ('skill_report','custom_report','daemon_report','mcp_report'):
+                report=json.loads((root/'patch-reports'/(name+'.json')).read_text(encoding='utf-8'))
+                if not report.get('passed'):raise RuntimeError('Installed patch acceptance failed: '+name)
         finally:
             if uninstaller.is_file():
                 subprocess.run([str(uninstaller),'/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART'],check=True,timeout=180)
@@ -42,7 +46,7 @@ def main():
                     time.sleep(.25)
         if (installed/'app/app.py').exists():raise RuntimeError('Uninstall left application files')
         require_no_installation()
-        receipt={'status':'passed','scope':'functional_on_disposable_windows_runner','installer_sha256':sha256(args.installer),'checks':['install','installed_files','startup','ui_resources','sample_workspace','mcp_process','uninstall'],'trusted_signature_verified':False}
+        receipt={'status':'passed','scope':'functional_on_disposable_windows_runner','installer_sha256':sha256(args.installer),'checks':['install','installed_files','startup','ui_resources','sample_workspace','mcp_process','patch_reports','http_mcp','uninstall'],'trusted_signature_verified':False}
         output=args.installer.parent/'functional-installation.json'
         output.write_text(json.dumps(receipt,indent=2),encoding='utf-8')
         print(json.dumps(receipt))

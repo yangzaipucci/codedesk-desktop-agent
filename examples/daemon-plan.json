@@ -1,0 +1,10 @@
+{
+  "name": "四步断点任务示例",
+  "workspace": ".",
+  "steps": [
+    {"kind": "write", "path": "daemon-output/01_scope.md", "content": "# 任务范围\n记录目标与验收条件。\n"},
+    {"kind": "write", "path": "daemon-output/02_plan.md", "content": "# 执行计划\n逐步完成，每步核对后落盘。\n"},
+    {"kind": "write", "path": "daemon-output/03_check.md", "content": "# 检查记录\n断点恢复时不重复已完成步骤。\n"},
+    {"kind": "write", "path": "daemon-output/04_done.md", "content": "# 已完成\n完成通知以任务 ID 去重。\n"}
+  ]
+}

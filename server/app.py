@@ -19,6 +19,9 @@ from agent.tools import Tools
 from agent.workspace import Workspace, attach_context
 from agent.tasks import TaskQueue
 from agent.modes import validate_mode
+from agent.capabilities import FEATURES, enabled
+from agent.skills import Skills
+from agent.daemon import Daemon
 
 
 def resources() -> Path:
@@ -33,12 +36,13 @@ def create_app(settings=None, token=None, runtime=None):
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost", "testserver"])
     app.state.token, app.state.settings, app.state.runtime = token, settings, runtime
     app.state.terminal = None
+    app.state.daemon_task = None
     app.state.jobs = TaskQueue(settings)
     style_nonce = secrets.token_urlsafe(24)
 
     async def shutdown():
         await app.state.jobs.close()
-        for task in (app.state.terminal,runtime.active):
+        for task in (app.state.terminal,runtime.active,app.state.daemon_task):
             if task and not task.done():
                 task.cancel()
                 await asyncio.gather(task,return_exceptions=True)
@@ -59,12 +63,51 @@ def create_app(settings=None, token=None, runtime=None):
         return response
 
     def idle():
+        if app.state.daemon_task and not app.state.daemon_task.done():
+            raise HTTPException(409, '后台任务正在执行，请等待或停止。')
         if runtime.active and not runtime.active.done():
             raise HTTPException(409, "任务进行中，请先中断再修改设置。")
         if app.state.terminal and not app.state.terminal.done():
             raise HTTPException(409, '终端命令正在运行，请先等待或中断。')
         if app.state.jobs.busy:
             raise HTTPException(409, '任务队列正在运行，请等待完成或取消任务。')
+
+    @app.get('/api/capabilities')
+    async def capabilities():
+        registry = Skills(settings.value['workspace'] or '.', settings.directory)
+        return {'features': {name: enabled(name, settings.directory) for name in FEATURES}, 'skills': [{'name':name,'description':item['description']} for name,item in registry.entries.items()], 'mcp': {'transport':'streamable-http','host':'127.0.0.1','default_port':8001,'path':'/mcp','stdio_uses_tcp_port':False,'standalone_server_required':True}}
+
+    @app.get('/api/daemon')
+    async def daemon_jobs():
+        if not enabled('daemon',settings.directory):
+            return {'enabled':False,'jobs':[],'notifications':[]}
+        return Daemon(settings).summaries()
+
+    @app.post('/api/daemon/create')
+    async def create_daemon(request: Request):
+        idle()
+        job = Daemon(settings).create(await request.json())
+        return {'id':job['id'],'status':job['status']}
+
+    @app.post('/api/daemon/run')
+    async def run_daemon(request: Request):
+        idle()
+        identity=(await request.json()).get('id')
+        daemon=Daemon(settings);daemon.require_enabled();daemon.get(identity)
+        async def run():
+            try:
+                await daemon.run(identity)
+            except (ValueError,OSError):
+                pass  # The durable job retains the actual failed/interrupted status.
+        app.state.daemon_task=asyncio.create_task(run())
+        return {'id':identity,'status':'started'}
+
+    @app.post('/api/daemon/stop')
+    async def stop_daemon():
+        if app.state.daemon_task and not app.state.daemon_task.done():
+            app.state.daemon_task.cancel()
+            await asyncio.gather(app.state.daemon_task,return_exceptions=True)
+        return {'ok':True}
 
     @app.get('/api/tasks')
     async def tasks():

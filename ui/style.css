@@ -16,3 +16,7 @@ dialog{padding:0;border:1px solid var(--border);border-radius:15px;background:va
 :root{--terminal-height:122px}.terminal-area{position:relative}.terminal-resize-handle{position:absolute;top:-4px;left:0;right:0;height:8px;cursor:row-resize;z-index:5;touch-action:none}.terminal-resize-handle:after{content:"";position:absolute;left:calc(50% - 19px);top:3px;width:38px;height:2px;background:var(--muted);border-radius:3px;opacity:.4}.terminal-resize-handle:hover:after,.terminal-resize-handle:focus-visible:after{background:var(--accent);opacity:1}.resize-handle{touch-action:none}.resize-handle:before{content:"";position:absolute;left:-3px;right:-3px;top:0;bottom:0}.resize-handle:focus-visible{outline:2px solid var(--accent)}.resizing{user-select:none}.terminal-area #terminal{height:min(var(--terminal-height),calc(100vh - 360px))}
 
 .tab{flex-shrink:0;max-width:225px}.tab>span:nth-child(2){min-width:0;overflow:hidden;text-overflow:ellipsis;max-width:155px}.tab .tab-close{flex-shrink:0}.tab .file-icon{flex-shrink:0}
+
+.patch-option{margin:12px 0}.advanced>.help{margin:14px 0}
+
+.autotest-state{font-size:10px;margin:5px 8px;color:var(--muted)}.autotest-state.passed{color:var(--green)}.autotest-state.failed{color:var(--danger)}

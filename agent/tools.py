@@ -14,6 +14,8 @@ import subprocess
 import tempfile
 
 from agent.changes import ChangeStore
+from agent.hooks import Hooks, PolicyDenied
+from agent.skills import Skills
 
 MAX_OUTPUT = 24000
 MAX_FILE = 8 * 1024 * 1024
@@ -24,7 +26,7 @@ def definition(name, description, properties, required):
 
 
 DEFINITIONS = [
-    definition("read", "Read a workspace file. Text and text-based PDF/DOCX return numbered lines (offset is 1-based), pagination and remaining lines. Scanned PDFs need OCR. Images return image content blocks, never base64 in text.", {"path": {"type": "string"}, "offset": {"type": "integer", "minimum": 1}, "limit": {"type": "integer", "minimum": 1, "maximum": 500}}, ["path"]),
+    definition("read", "Read a workspace file or an advertised skill://name/SKILL.md. Text and text-based PDF/DOCX return numbered lines (offset is 1-based), pagination and remaining lines. Scanned PDFs need OCR. Images return image content blocks, never base64 in text.", {"path": {"type": "string"}, "offset": {"type": "integer", "minimum": 1}, "limit": {"type": "integer", "minimum": 1, "maximum": 500}}, ["path"]),
     definition("write", "Atomically write UTF-8 content, creating parents. Overwrite reports old/new line counts and diff. Read an existing file before changing it.", {"path": {"type": "string"}, "content": {"type": "string"}}, ["path", "content"]),
     definition("edit", "Replace exactly one occurrence of old with new. Zero or multiple matches fail without modifying the file. Supply more context on failure. Never rewrite the whole file for a small edit.", {"path": {"type": "string"}, "old": {"type": "string"}, "new": {"type": "string"}}, ["path", "old", "new"]),
     definition("bash", "Run a command in the workspace. On Windows use PowerShell syntax. Can query public HTTPS APIs with Invoke-RestMethod or web pages with Invoke-WebRequest -UseBasicParsing, respecting the user's online preference. Returns bounded stdout, stderr, exit_code, timed_out. Use for git, packages, tests and live public information. Timeout max 120 seconds.", {"command": {"type": "string"}, "timeout": {"type": "number", "minimum": 0.1, "maximum": 120}}, ["command"]),
@@ -54,6 +56,9 @@ class Tools:
     def __init__(self, workspace: Path, state_directory: Path | None = None):
         self.workspace = workspace.resolve()
         self.changes = ChangeStore(self.workspace, state_directory)
+        directory = state_directory or self.changes.directory.parents[1]
+        self.hooks = Hooks(self.workspace, directory)
+        self.skills = Skills(self.workspace, directory)
 
     def undo(self, change_id: str) -> dict:
         return self.changes.undo(change_id)
@@ -72,6 +77,8 @@ class Tools:
         return path.read_bytes().decode("utf-8-sig")
 
     def read(self, path: str, offset: int = 1, limit: int = 200) -> dict:
+        if isinstance(path, str) and path.startswith('skill://'):
+            return self.skills.read(path, offset, limit)
         target = self.resolve(path)
         if not target.is_file():
             raise ToolError(f"找不到文件：{path}")
@@ -137,11 +144,13 @@ class Tools:
         return {"ok": True, "path": path, "old_lines": len(before.splitlines()), "new_lines": len(after.splitlines()), "diff": diff[:MAX_OUTPUT], "diff_truncated": len(diff) > MAX_OUTPUT, "change_id": change_id}
 
     def write(self, path: str, content: str) -> dict:
+        self.hooks.before('write', {'path': path})
         target = self.resolve(path)
         before = self._text(target) if target.exists() else ""
         return self._changed(target, path, before, content)
 
     def edit(self, path: str, old: str, new: str) -> dict:
+        self.hooks.before('edit', {'path': path})
         if not old:
             raise ToolError("old 不能为空。")
         target = self.resolve(path)
@@ -152,6 +161,7 @@ class Tools:
         return self._changed(target, path, before, before.replace(old, new, 1))
 
     async def bash(self, command: str, timeout: float = 30, emit=None) -> dict:
+        self.hooks.before('bash', {'command': command})
         timeout = float(timeout)
         if not 0.1 <= timeout <= 120:
             raise ToolError("命令超时必须在 0.1–120 秒之间。")
@@ -160,7 +170,7 @@ class Tools:
             options = {"creationflags": subprocess.CREATE_NO_WINDOW | subprocess.CREATE_NEW_PROCESS_GROUP}
         else:
             args, options = ["/bin/bash", "-c", command], {"start_new_session": True}
-        env = {k: v for k, v in os.environ.items() if not any(term in k.upper() for term in ("API_KEY", "APIKEY", "CODEDESK_TOKEN"))}
+        env = {k: v for k, v in os.environ.items() if not any(term in k.upper() for term in ("API_KEY", "APIKEY", "CODEDESK_TOKEN", "CODEDESK_MCP_TOKEN"))}
         if not getattr(sys, 'frozen', False):
             env['PATH'] = str(Path(sys.executable).parent) + os.pathsep + env.get('PATH', '')
             env['CODEDESK_PROJECT_PYTHON'] = '1'
@@ -214,6 +224,8 @@ class Tools:
             if name not in {"read", "write", "edit"}:
                 raise ToolError(f"未知工具：{name}")
             return getattr(self, name)(**arguments)
+        except PolicyDenied as error:
+            return {'ok': False, 'denied': True, 'hook': 'pre_tool', 'error': str(error)}
         except (ValueError, OSError, TypeError) as error:
             return {"ok": False, "error": str(error)[:4000]}
 

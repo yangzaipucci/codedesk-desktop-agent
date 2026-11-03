@@ -65,7 +65,7 @@ def main(argv=None):
     run(*common, '--onedir', '--console', '--name', 'OnlineMCP', '--distpath', stage / 'online', 'mcp_network.py')
     helper = stage / "helper/WorkspaceMCP"
     online = stage / 'online/OnlineMCP'
-    run(*common, "--onedir", "--windowed", "--name", "CodeDesk", "--distpath", stage / "application", "--add-data", f"{ROOT / 'ui'};ui", "--add-data", f"{ROOT / 'sample_workspace'};sample_workspace", "--add-data", f"{helper};mcp/WorkspaceMCP", "--add-data", f"{online};mcp/OnlineMCP", "--hidden-import", "keyring.backends.Windows", "--hidden-import", "uvicorn.logging", "--hidden-import", "uvicorn.loops.asyncio", "--hidden-import", "uvicorn.protocols.http.h11_impl", "--hidden-import", "uvicorn.protocols.websockets.websockets_impl", "--hidden-import", "uvicorn.lifespan.on", "--exclude-module", "PyQt5", "--exclude-module", "PyQt6", "--exclude-module", "PySide6", "app.py")
+    run(*common, "--onedir", "--windowed", "--name", "CodeDesk", "--add-data", f"{ROOT / 'agent_assets'};agent_assets", "--distpath", stage / "application", "--add-data", f"{ROOT / 'ui'};ui", "--add-data", f"{ROOT / 'sample_workspace'};sample_workspace", "--add-data", f"{helper};mcp/WorkspaceMCP", "--add-data", f"{online};mcp/OnlineMCP", "--hidden-import", "keyring.backends.Windows", "--hidden-import", "uvicorn.logging", "--hidden-import", "uvicorn.loops.asyncio", "--hidden-import", "uvicorn.protocols.http.h11_impl", "--hidden-import", "uvicorn.protocols.websockets.websockets_impl", "--hidden-import", "uvicorn.lifespan.on", "--exclude-module", "PyQt5", "--exclude-module", "PyQt6", "--exclude-module", "PySide6", "app.py")
     bundle = stage / "application/CodeDesk"
     binaries = signer.bundle(bundle) if signer else []
     cache = stage / "signed-uninstallers"

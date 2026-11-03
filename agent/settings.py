@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+from agent.capabilities import FEATURES, enabled
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -42,6 +43,7 @@ class Settings:
         self.directory.mkdir(parents=True, exist_ok=True)
         self.path = self.directory / "settings.json"
         self.value = {"provider": "deepseek", **PRESETS["deepseek"], "workspace": "", "max_steps": 20, "budget_tokens": 100000, "run_timeout": 300, "mcp_servers": {}, "online_enabled": True}
+        self.value.update({'enable_' + name: True for name in FEATURES})
         if self.path.exists():
             try:
                 saved = json.loads(self.path.read_text(encoding="utf-8"))
@@ -49,6 +51,8 @@ class Settings:
             except (ValueError, OSError):
                 pass
         self.memory_keys: dict[str, str] = {}
+        for feature in FEATURES:
+            self.value.setdefault('enable_' + feature, True)
 
     @staticmethod
     def _vault():
@@ -70,7 +74,7 @@ class Settings:
             return ""
 
     def public(self) -> dict:
-        return {**self.value, "has_key": bool(self.key()), "presets": PRESETS}
+        return {**self.value, "has_key": bool(self.key()), "presets": PRESETS, 'active_features': {name: enabled(name, self.directory) for name in FEATURES}}
 
     def _remove_remembered(self, account: str, strict: bool = False):
         try:
@@ -90,6 +94,12 @@ class Settings:
 
     def save(self, payload: dict) -> dict:
         value = dict(self.value)
+        for feature in FEATURES:
+            field = 'enable_' + feature
+            if field in payload:
+                if type(payload[field]) is not bool:
+                    raise ValueError('功能开关必须为布尔值。')
+                value[field] = payload[field]
         for name in ("provider", "model", "workspace", "max_steps", "budget_tokens", "run_timeout", "mcp_servers", "online_enabled"):
             if name in payload:
                 value[name] = payload[name]

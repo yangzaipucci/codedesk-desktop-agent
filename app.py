@@ -12,7 +12,19 @@ import threading
 import time
 
 
+def inspect(output='reports'):
+    """Importable acceptance entry point, also exposed as app.py inspect."""
+    from agent.inspection import inspect_patches
+    import json
+    result = asyncio.run(inspect_patches(output))
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+    return result
+
+
 def main():
+    if len(sys.argv) > 1 and sys.argv[1] in {'inspect', 'mcp', 'daemon'}:
+        from agent.cli import main as cli
+        return cli(sys.argv[1:])
     parser = argparse.ArgumentParser()
     parser.add_argument("--headless", action="store_true")
     parser.add_argument("--port", type=int, default=0)
@@ -86,7 +98,7 @@ if __name__ == "__main__":
     except Exception as error:
         if sys.stderr is not None:
             print(str(error), file=sys.stderr)
-        if os.name == "nt" and "--headless" not in sys.argv:
+        if os.name == "nt" and "--headless" not in sys.argv and (len(sys.argv)<2 or sys.argv[1] not in {'inspect','mcp','daemon'}):
             import ctypes
             ctypes.windll.user32.MessageBoxW(None, "CodeDesk 无法启动。请确认已安装 Microsoft Edge WebView2 运行时。\n\n" + str(error)[:600], "启动失败", 0x10)
         raise

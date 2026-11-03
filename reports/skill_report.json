@@ -1,0 +1,65 @@
+{
+  "catalog_tokens": 425,
+  "full_tokens": 7112,
+  "disclosure_ratio": 16.734,
+  "skill_count": 3,
+  "token_measure": "UTF-8 byte upper bound; not provider billing",
+  "trials": [
+    {
+      "prompt": "请做代码审查并指出实际问题",
+      "expected": [
+        "code-review"
+      ],
+      "selected": [
+        "code-review"
+      ],
+      "passed": true
+    },
+    {
+      "prompt": "请运行测试验证 Python 函数",
+      "expected": [
+        "python-tests"
+      ],
+      "selected": [
+        "python-tests"
+      ],
+      "passed": true
+    },
+    {
+      "prompt": "请检索文献并列出 DOI",
+      "expected": [
+        "web-research"
+      ],
+      "selected": [
+        "web-research"
+      ],
+      "passed": true
+    },
+    {
+      "prompt": "你好",
+      "expected": [],
+      "selected": [],
+      "passed": true
+    },
+    {
+      "prompt": "今天几号",
+      "expected": [],
+      "selected": [],
+      "passed": true
+    },
+    {
+      "prompt": "不要运行测试，只解释字典推导式",
+      "expected": [],
+      "selected": [],
+      "passed": true
+    }
+  ],
+  "false_positives": 0,
+  "catalog_has_no_bodies": true,
+  "loaded_on_demand": [
+    "code-review",
+    "python-tests",
+    "web-research"
+  ],
+  "passed": true
+}

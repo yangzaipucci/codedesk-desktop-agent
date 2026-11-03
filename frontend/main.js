@@ -1,8 +1,10 @@
+import {installPatchSettings,fillPatchSettings,patchSettings,watchCompletions,renderAutotest} from './patches.js';
 import {marked} from 'marked';
 import DOMPurify from 'dompurify';
 import {createCodeEditor} from './editor.js';
 import {filterPaths,expandCommand,cleanTheme,compactEvents,workspacePath,isImage,languageLabel,fileGlyph} from './utils.js';
 
+installPatchSettings();
 const $=id=>document.getElementById(id), token=document.querySelector('meta[name="session-token"]').content;
 const nonce=document.querySelector('meta[name="style-nonce"]').content;
 let config=null,running=false,terminalRunning=false,socket=null,active=null,assistant=null,panel='files',pickerMode='files',newKind='file',paths=[],selectionContext=null,theme='light',mode='agent',queueBusy=false,selectedTask=null,taskCursor=0,taskTimer=null,lastAnswer='';
@@ -37,12 +39,12 @@ function fillSettings(){
   $('apiKey').value='';$('apiKey').type='password';$('toggleKey').textContent='显示';$('rememberKey').checked=false;
   $('keyState').textContent=config.has_key?'已配置 · 留空保留':'尚未配置';$('onlineEnabled').checked=config.online_enabled!==false;
   $('mcpConfig').value=JSON.stringify(config.mcp_servers,null,2);$('maxSteps').value=config.max_steps;$('budgetTokens').value=config.budget_tokens;$('runTimeout').value=config.run_timeout;
-  $('connectionResult').textContent='测试会产生少量模型 API 用量。';$('mcpResult').textContent='演示服务无需模型 Key。';providerDrafts.clear();
+  $('connectionResult').textContent='测试会产生少量模型 API 用量。';$('mcpResult').textContent='演示服务无需模型 Key。';providerDrafts.clear();fillPatchSettings(config);
 }
 function showSettings(){if(running||terminalRunning||queueBusy)return toast('请先等待当前任务完成或中断。');fillSettings();$('settingsDialog').showModal();}
 async function saveSettings(){
   let mcp;try{mcp=JSON.parse($('mcpConfig').value||'{}');}catch{throw new Error('MCP 配置不是合法 JSON。');}
-  const value=await api('settings',{provider:$('provider').value,base_url:$('baseUrl').value,model:$('model').value,api_key:$('apiKey').value,remember_key:$('rememberKey').checked,online_enabled:$('onlineEnabled').checked,mcp_servers:mcp,max_steps:Number($('maxSteps').value),budget_tokens:Number($('budgetTokens').value),run_timeout:Number($('runTimeout').value)});
+  const value=await api('settings',{...patchSettings(),provider:$('provider').value,base_url:$('baseUrl').value,model:$('model').value,api_key:$('apiKey').value,remember_key:$('rememberKey').checked,online_enabled:$('onlineEnabled').checked,mcp_servers:mcp,max_steps:Number($('maxSteps').value),budget_tokens:Number($('budgetTokens').value),run_timeout:Number($('runTimeout').value)});
   $('apiKey').value='';syncConfig(value);return value;
 }
 for(const id of ['settingsButton','networkButton','modelButton','mcpButton','welcomeModel'])$(id).onclick=showSettings;
@@ -156,7 +158,7 @@ function receive(event,fromTask=false){
   else if(event.type==='mcp_status')status('MCP · '+event.server+' · '+(event.ok?event.tools.length+' 个工具已连接':event.error),!event.ok);
   else if(event.type==='tool_start'){assistant=null;const args=event.arguments||{},title=toolTitle(event.name,args),card=node('div','tool compact-tool'),summary=node('div','tool-summary'),indicator=node('span','tool-state','执行中');summary.append(node('span','tool-name',title),node('span','tool-source',event.source==='内置'?'内置':'MCP · '+event.source),indicator);card.append(summary);const record={id:event.id,name:event.name,args,source:event.source,title,card,indicator};card.append(button('查看过程 ↗',()=>inspectTool(record),'tool-detail'));$('messages').append(card);tools.set(event.id,record);if(event.name==='bash'){$('terminalBody').hidden=false;$('terminal').textContent='PS › '+args.command+'\n\n';}if(event.name==='read'&&args.path)openFile(args.path).catch(()=>{});scrollChat();}
   else if(event.type==='command_output'){$('terminal').textContent+=event.text;$('terminal').scrollTop=$('terminal').scrollHeight;}
-  else if(event.type==='tool_result'){const record=tools.get(event.id);if(!record)return;const result=record.result=event.result;record.card.classList.toggle('failed',!result.ok);record.indicator.textContent=result.ok?'已完成':'未完成';if(!result.ok)record.card.append(node('p','tool-error',(result.error||('执行未成功'+(result.exit_code!==undefined?' · exit '+result.exit_code:''))).split('\n')[0].slice(0,160)));if(result.diff!==undefined)record.card.append(button('查看修改差异',()=>drawDiff(result.path,result.diff)));if(result.change_id)record.card.append(button('撤销这次修改',()=>undoChange(result.change_id)));if(['write','edit'].includes(event.name)&&result.ok)Promise.all([loadFiles(),refreshDocuments()]).then(()=>openFile(result.path)).catch(error);if(event.name==='bash')$('terminal').textContent+='\n[exit '+result.exit_code+(result.timed_out?' · 超时':'')+']\n';}
+  else if(event.type==='tool_result'){const record=tools.get(event.id);if(!record)return;const result=record.result=event.result;record.card.classList.toggle('failed',!result.ok);record.indicator.textContent=result.ok?'已完成':'未完成';if(!result.ok)record.card.append(node('p','tool-error',(result.error||('执行未成功'+(result.exit_code!==undefined?' · exit '+result.exit_code:''))).split('\n')[0].slice(0,160)));renderAutotest(record.card,result.autotest);if(result.diff!==undefined)record.card.append(button('查看修改差异',()=>drawDiff(result.path,result.diff)));if(result.change_id)record.card.append(button('撤销这次修改',()=>undoChange(result.change_id)));if(['write','edit'].includes(event.name)&&result.ok)Promise.all([loadFiles(),refreshDocuments()]).then(()=>openFile(result.path)).catch(error);if(event.name==='bash')$('terminal').textContent+='\n[exit '+result.exit_code+(result.timed_out?' · 超时':'')+']\n';}
   else if(event.type==='done'){assistant=null;if(!fromTask)setRunning(false);$('stateText').textContent=({completed:'● 已完成',cancelled:'● 已中断',timeout:'● 已超时',error:'● 需要处理'})[event.status]||'已停止';if(event.tokens)$('stepText').textContent+=' · ≈'+event.tokens+' tokens';if(mode==='plan'&&event.status==='completed'&&!fromTask){$('messages').append(button('切换 Agent，执行这个计划',()=>{setMode('agent');return sendPrompt('请按刚才的计划执行，先检查相关文件，完成修改并验证。');},'execute-plan'));}Promise.all([loadFiles(),refreshDocuments(),panel==='changes'?loadChanges():Promise.resolve()]).catch(error);}
   if(event.type==='tool_start'&&event.name==='bash'&&!documents.get(active)?.dirty){const path='_command_current.ps1';showVirtual(path,'执行命令 · PowerShell',event.arguments.command||'');}
 }
@@ -197,3 +199,5 @@ let taskPolling=false;
 async function pollTasks(){if(taskPolling)return;taskPolling=true;clearTimeout(taskTimer);try{const result=await api('tasks');queueBusy=result.tasks.some(j=>['running','queued'].includes(j.status));const jobs=result.tasks.filter(j=>j.workspace===config.workspace);tasksPanel.replaceChildren();const statuses={queued:'等待中',running:'执行中',completed:'已完成',cancelled:'已取消',error:'需要处理',timeout:'已超时',interrupted:'已中断'};if(!jobs.length)tasksPanel.append(node('p','hint','输入任务并发送，可添加多个独立任务。'));for(const job of jobs){const row=node('div','task-row'+(job.id===selectedTask?' selected':''));const open=button('',()=>selectTask(job.id),'task-open');open.append(node('span','task-state '+job.status,statuses[job.status]||job.status),node('span','task-title',job.prompt.split('\n')[0]));row.append(open);if(['running','queued'].includes(job.status))row.append(button('×',async()=>{await api('tasks/cancel',{id:job.id});await pollTasks();},'task-cancel'));tasksPanel.append(row);}if(mode==='multitask'&&selectedTask){const detail=await api('tasks/detail?id='+selectedTask+'&after='+taskCursor);for(const event of compactEvents(detail.events))receive(event,true);taskCursor=detail.cursor;}}finally{taskPolling=false;if(mode==='multitask'||queueBusy)taskTimer=setTimeout(()=>pollTasks().catch(error),1200);}}
 window.addEventListener('beforeunload',e=>{if([...documents.values()].some(d=>d.dirty)){e.preventDefault();e.returnValue='';}});
 (async()=>{try{syncConfig(await api('settings'));await loadFiles();const history=await api('history');if(history.mode)setMode(history.mode);for(const event of compactEvents(history.events))receive(event);}catch(value){error(value);}})();
+
+watchCompletions(api,toast);

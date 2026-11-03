@@ -1,0 +1,11 @@
+{
+  "default_port": 8001,
+  "tested_port": 56418,
+  "endpoint": "/mcp",
+  "transport": "streamable-http",
+  "unauthenticated_status": 401,
+  "bad_origin_status": 403,
+  "tools": 1,
+  "actual_call_ok": true,
+  "passed": true
+}

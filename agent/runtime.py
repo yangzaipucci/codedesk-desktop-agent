@@ -8,12 +8,16 @@ import json
 from pathlib import Path
 import uuid
 import re
+import time
 
 from agent.mcp_client import MCP, online_config
 from agent.network_guidance import guidance
 from agent.modes import MODES, READ_ONLY, validate_mode
 from agent.provider import Provider
 from agent.tools import DEFINITIONS, Tools, model_result
+from agent.capabilities import atomic_json, project_guidance, token_bound, truncate
+from agent.skills import Skills
+from agent.reviewer import Reviewer
 
 SYSTEM = """你是 CodeDesk 桌面智能体，用中文沟通，支持普通问答、资料检索和代码任务。普通知识问题直接回答；实时事实与文献引用使用真实工具核对，不把所有问题当成本地文件任务。本地代码任务先理解工作目录，再进行必要的最小修改；实时信息查询不必读取项目文件。
 你只有 read、write、edit、bash 四个内置工具，此外可能有标有来源的 MCP 工具。
@@ -28,9 +32,11 @@ Windows bash 工具实际执行 PowerShell，命令必须使用 PowerShell 语�
 
 
 class Runtime:
-    def __init__(self, settings, provider=None, restore=False):
+    def __init__(self, settings, provider=None, restore=False, reviewer_provider=None):
         self.settings = settings
         self.provider = provider or Provider(settings)
+        self.reviewer_provider = reviewer_provider
+        self.controlled_provider = provider is not None and not isinstance(provider, Provider)
         self.session_id = uuid.uuid4().hex
         self.messages = []
         self.workspace = ""
@@ -38,6 +44,7 @@ class Runtime:
         self.active = None
         self.mode = 'agent'
         self.persistence_group = 'chat'
+        self.custom_context_tokens = 0
         if restore:
             self.restore_latest()
 
@@ -104,11 +111,20 @@ class Runtime:
             return
         if workspace != self.workspace or not self.messages or self.messages[0].get("role") != "system":
             self.reset_context(workspace)
-        # Refresh the date and preference for existing conversations too.
-        self.messages[0]["content"] = SYSTEM + f"\n当前工作目录：{workspace}\n" + MODES[mode] + guidance(config.get("online_enabled", True))
+        # Rebuild transient instructions, never accumulate old reviewer summaries.
+        self.messages = [m for m in self.messages if not (m.get('role') == 'user' and isinstance(m.get('content'), str) and m['content'].startswith('[CodeDesk review]'))]
+        custom, sources = project_guidance(workspace, self.settings.directory)
+        self.custom_context_tokens = token_bound(custom)
+        skills = Skills(workspace, self.settings.directory)
+        matches = skills.select(prompt)
+        skill_text = skills.catalog()
+        if matches:
+            skill_text += '\nRelevant skills: ' + ', '.join(matches) + '. Read the matching SKILL.md through read before proceeding.'
+        self.messages[0]["content"] = SYSTEM + f"\n当前工作目录：{workspace}\n" + MODES[mode] + guidance(config.get("online_enabled", True)) + custom + skill_text
         self.messages.append({"role": "user", "content": prompt})
         await emit({"type": "user", "text": prompt if display_prompt is None else display_prompt})
         status, pending = "completed", []
+        changed, started = [], time.monotonic()
         tools, used, repeated = Tools(Path(workspace), self.settings.directory), 0, Counter()
         try:
             async with asyncio.timeout(config["run_timeout"]):
@@ -161,6 +177,11 @@ class Runtime:
                             result = await mcp.call(name, arguments)
                         else:
                             result = await tools.execute(name, arguments, command_emit)
+                            if result.get('ok') and name in {'write', 'edit'}:
+                                changed.append(result['path'])
+                                result['autotest'] = await tools.hooks.after_edit(result['path'], tools)
+                            if result.get('skill_loaded'):
+                                await emit({'type': 'status', 'text': '已按需加载技能：' + result['skill_loaded']})
                         image_blocks = [c for c in result.get("content", []) if c.get("type") == "image"]
                         visible = dict(result)
                         if "content" in visible:
@@ -195,6 +216,25 @@ class Runtime:
             for call in pending:
                 self.messages.append({"role": "tool", "tool_call_id": call["id"], "content": json.dumps({"ok": False, "error": "执行已中断或未完成。"}, ensure_ascii=False)})
                 await emit({"type": "tool_result", "id": call["id"], "name": call["function"]["name"], "result": {"ok": False, "error": "执行已中断或未完成。"}})
+            if status == 'completed' and changed:
+                remaining = config['run_timeout'] - (time.monotonic() - started)
+                try:
+                    if self.controlled_provider and self.reviewer_provider is None:
+                        review = {'status': 'skipped', 'reason': 'controlled main provider; no implicit real API request'}
+                    else:
+                        review = await asyncio.wait_for(Reviewer(self.settings, self.reviewer_provider).review(prompt, list(dict.fromkeys(changed)), tools, budget=min(8000,max(0,config['budget_tokens']-used))), timeout=max(.01, min(60, remaining))) if remaining > 0 else {'status': 'limited', 'reason': 'run timeout'}
+                except asyncio.CancelledError:
+                    status = 'cancelled'
+                    review = {'status': 'cancelled'}
+                except TimeoutError:
+                    review = {'status': 'limited', 'reason': 'review timeout'}
+                atomic_json(self.settings.directory / 'reviews' / (self.session_id + '.json'), json.loads(self.settings.redact(json.dumps(review, ensure_ascii=False))))
+                used += review.get('tokens',0)
+                if review.get('summary'):
+                    extra = truncate('[CodeDesk review]' + review['summary'], 500 - self.custom_context_tokens)
+                    self.custom_context_tokens += token_bound(extra)
+                    self.messages.append({'role': 'user', 'content': extra})
+                await emit({'type': 'status', 'text': '只读审查：' + review.get('summary', review.get('reason', review['status']))[:220]})
             await emit({"type": "done", "status": status, "tokens": used})
             self.persist()
 

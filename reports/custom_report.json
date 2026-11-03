@@ -1,0 +1,49 @@
+{
+  "agents_md": [
+    {
+      "layer": "global",
+      "loaded": true,
+      "line_count": 1,
+      "injected_bytes": 48,
+      "truncated": false
+    },
+    {
+      "layer": "project",
+      "loaded": true,
+      "line_count": 30,
+      "injected_bytes": 302,
+      "truncated": true
+    }
+  ],
+  "denied": [
+    {
+      "tool": "bash",
+      "denied": true,
+      "has_alternative": true
+    },
+    {
+      "tool": "write",
+      "denied": true,
+      "has_alternative": true
+    }
+  ],
+  "autotest": {
+    "status": "passed",
+    "syntax_ok": true,
+    "test": "test_maths.py",
+    "exit_code": 0
+  },
+  "reviewer": {
+    "status": "completed",
+    "allowed_tools": [
+      "read"
+    ],
+    "denied_writes": 1,
+    "reads": 1,
+    "context_isolated": true
+  },
+  "reviewer_test_tier": "controlled_provider_with_real_file_tools",
+  "parent_context_tokens": 416,
+  "token_measure": "UTF-8 byte upper bound; not billing",
+  "passed": true
+}

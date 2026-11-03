@@ -1,0 +1,15 @@
+{
+  "resume_step": 4,
+  "steps_total": 4,
+  "completed_before_kill": 3,
+  "hard_kill": true,
+  "idempotent": true,
+  "notification_count": 1,
+  "completed": true,
+  "capabilities": [
+    "crash_resume",
+    "timer_poll",
+    "completion_notification"
+  ],
+  "passed": true
+}

@@ -10,6 +10,12 @@
       "transport": "streamable-http",
       "url": "http://127.0.0.1:8001/mcp",
       "enabled": false
+    },
+    "codedesk-local-http": {
+      "transport": "streamable-http",
+      "url": "http://127.0.0.1:8001/mcp",
+      "token_env": "CODEDESK_MCP_TOKEN",
+      "enabled": false
     }
   }
 }
