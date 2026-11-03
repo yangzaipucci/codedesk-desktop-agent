@@ -1,0 +1,4 @@
+cl100k_base merge ranks from the tiktoken project (MIT license).
+Source: https://openaipublic.blob.core.windows.net/encodings/cl100k_base.tiktoken
+SHA256: 223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7
+Offline BPE counts are reproducible measurements, not DeepSeek billing token counts.

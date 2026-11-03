@@ -1,7 +1,6 @@
 ---
 name: code-review
-description: Review code changes with concrete evidence.
-triggers: ["代码审查", "code review", "检查代码"]
+description: Review code with concrete evidence. Use this when 用户说“代码审查”“code review”“检查代码”。
 ---
 # Code review workflow
 

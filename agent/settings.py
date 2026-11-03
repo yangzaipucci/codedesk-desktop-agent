@@ -4,7 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-from agent.capabilities import FEATURES, enabled
+from agent.capabilities import FEATURES, enabled, default_enabled
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -43,7 +43,7 @@ class Settings:
         self.directory.mkdir(parents=True, exist_ok=True)
         self.path = self.directory / "settings.json"
         self.value = {"provider": "deepseek", **PRESETS["deepseek"], "workspace": "", "max_steps": 20, "budget_tokens": 100000, "run_timeout": 300, "mcp_servers": {}, "online_enabled": True}
-        self.value.update({'enable_' + name: True for name in FEATURES})
+        self.value.update({'enable_' + name: default_enabled(name) for name in FEATURES})
         if self.path.exists():
             try:
                 saved = json.loads(self.path.read_text(encoding="utf-8"))

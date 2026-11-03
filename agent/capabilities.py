@@ -5,6 +5,11 @@ from pathlib import Path
 import time
 
 FEATURES = ('skills', 'custom', 'hooks', 'autotest', 'reviewer', 'daemon')
+DEFAULT_PROFILE = 'skills'
+
+
+def default_enabled(name):
+    return name == 'skills' or DEFAULT_PROFILE == 'all' or DEFAULT_PROFILE == 'custom' and name != 'daemon'
 
 
 def enabled(name, directory=None):
@@ -17,9 +22,9 @@ def enabled(name, directory=None):
         return override.lower() not in {'0', 'false', 'off'}
     try:
         value = json.loads((Path(directory) / 'settings.json').read_text(encoding='utf-8'))
-        return value.get('enable_' + name, True) is not False
+        return value.get('enable_' + name, default_enabled(name)) is not False
     except (OSError, ValueError, TypeError):
-        return True
+        return default_enabled(name)
 
 
 def assets():

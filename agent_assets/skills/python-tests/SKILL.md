@@ -1,7 +1,6 @@
 ---
 name: python-tests
-description: Run focused Python tests and interpret actual failures.
-triggers: ["运行测试", "单元测试", "run python tests"]
+description: Run focused Python tests with a helper script. Use this when 用户说“运行测试”“单元测试”“run python tests”。
 ---
 # Focused Python testing workflow
 

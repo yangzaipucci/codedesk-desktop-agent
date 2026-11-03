@@ -89,7 +89,7 @@ def main():
             if child.is_dir():shutil.rmtree(child)
             else:child.unlink()
     application.mkdir(exist_ok=True)
-    for name in ['agent','server','ui','sample_workspace','agent_assets']:
+    for name in ['app','agent','server','ui','sample_workspace','agent_assets','skills']:
         shutil.copytree(ROOT/name,application/name,ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
     for name in ['app.py','mcp_demo.py','mcp_network.py','LICENSE','AGENTS.md']:
         shutil.copy2(ROOT/name,application/name)

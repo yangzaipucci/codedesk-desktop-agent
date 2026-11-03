@@ -1,65 +1,141 @@
 {
-  "catalog_tokens": 425,
-  "full_tokens": 7112,
-  "disclosure_ratio": 16.734,
-  "skill_count": 3,
-  "token_measure": "UTF-8 byte upper bound; not provider billing",
-  "trials": [
+  "skills": [
     {
-      "prompt": "请做代码审查并指出实际问题",
-      "expected": [
-        "code-review"
-      ],
-      "selected": [
-        "code-review"
-      ],
-      "passed": true
+      "name": "code-review",
+      "has_scripts": false,
+      "uses_mcp": false
     },
     {
-      "prompt": "请运行测试验证 Python 函数",
-      "expected": [
-        "python-tests"
-      ],
-      "selected": [
-        "python-tests"
-      ],
-      "passed": true
+      "name": "fetch-issue",
+      "has_scripts": false,
+      "uses_mcp": true
     },
     {
-      "prompt": "请检索文献并列出 DOI",
-      "expected": [
-        "web-research"
-      ],
-      "selected": [
-        "web-research"
-      ],
-      "passed": true
+      "name": "python-tests",
+      "has_scripts": true,
+      "uses_mcp": false
     },
     {
-      "prompt": "你好",
-      "expected": [],
-      "selected": [],
-      "passed": true
+      "name": "review-diff",
+      "has_scripts": true,
+      "uses_mcp": false
     },
     {
-      "prompt": "今天几号",
-      "expected": [],
-      "selected": [],
-      "passed": true
+      "name": "run-tests",
+      "has_scripts": false,
+      "uses_mcp": false
     },
     {
-      "prompt": "不要运行测试，只解释字典推导式",
-      "expected": [],
-      "selected": [],
-      "passed": true
+      "name": "web-research",
+      "has_scripts": false,
+      "uses_mcp": true
     }
   ],
-  "false_positives": 0,
+  "catalog_tokens": 302,
+  "full_tokens": 2319,
+  "disclosure_ratio": 7.679,
+  "skill_count": 6,
+  "token_measure": "tiktoken cl100k_base BPE; offline ranks; provider billing may differ",
+  "trials": [
+    {
+      "query": "帮我跑测试",
+      "expected": "run-tests",
+      "hit": "run-tests",
+      "ok": true
+    },
+    {
+      "query": "帮我审一遍diff",
+      "expected": "review-diff",
+      "hit": "review-diff",
+      "ok": true
+    },
+    {
+      "query": "查询Issue 的状态",
+      "expected": "fetch-issue",
+      "hit": "fetch-issue",
+      "ok": true
+    },
+    {
+      "query": "请检查代码",
+      "expected": "code-review",
+      "hit": "code-review",
+      "ok": true
+    },
+    {
+      "query": "请运行测试",
+      "expected": "python-tests",
+      "hit": "python-tests",
+      "ok": true
+    },
+    {
+      "query": "检索文献并列出 DOI",
+      "expected": "web-research",
+      "hit": "web-research",
+      "ok": true
+    },
+    {
+      "query": "你好",
+      "expected": null,
+      "hit": null,
+      "ok": true
+    },
+    {
+      "query": "今天几号",
+      "expected": null,
+      "hit": null,
+      "ok": true
+    },
+    {
+      "query": "不要跑测试，只解释语法",
+      "expected": null,
+      "hit": null,
+      "ok": true
+    }
+  ],
+  "false_positive": 0,
   "catalog_has_no_bodies": true,
   "loaded_on_demand": [
-    "code-review",
-    "python-tests",
-    "web-research"
+    "review-diff"
   ],
+  "before_after": {
+    "test_tier": "controlled_provider_with_real_git_and_script",
+    "same_code": true,
+    "runs": [
+      {
+        "enable_skills": 0,
+        "query": "帮我审一遍diff，列出改动统计和完整差异，不修改文件。",
+        "tool_calls": 4,
+        "tool_rounds": 4,
+        "completed": true,
+        "all_tools_ok": true,
+        "tool_names": [
+          "read",
+          "read",
+          "bash",
+          "bash"
+        ]
+      },
+      {
+        "enable_skills": 1,
+        "query": "帮我审一遍diff，列出改动统计和完整差异，不修改文件。",
+        "tool_calls": 3,
+        "tool_rounds": 3,
+        "completed": true,
+        "all_tools_ok": true,
+        "tool_names": [
+          "read",
+          "read",
+          "bash"
+        ]
+      }
+    ],
+    "saved_tool_calls": 1
+  },
+  "mcp_execution": {
+    "transport": "stdio",
+    "actual_call_ok": true,
+    "tools_found": 1
+  },
+  "false_positives": 0,
   "passed": true
 }

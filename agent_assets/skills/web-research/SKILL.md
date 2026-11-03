@@ -1,7 +1,6 @@
 ---
 name: web-research
-description: Retrieve literature and public evidence through MCP.
-triggers: ["查找文献", "检索文献", "文献检索", "MCP查询", "MCP 查询"]
+description: Retrieve literature using MCP. Use this when 用户说“查找文献”“检索文献”“文献检索”“MCP查询”“MCP 查询”。
 ---
 # Research through MCP
 
