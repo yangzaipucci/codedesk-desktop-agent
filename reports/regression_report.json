@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "backend_tests": 125,
+  "backend_seconds": 13.617,
+  "frontend_tests": 5,
+  "frontend_passed": 5,
+  "frontend_failed": 0,
+  "source_commit": "4f87565",
+  "workflow_url": "https://github.com/yangzaipucci/codedesk-desktop-agent/actions/runs/41662745068",
+  "job_id": 126009941330,
+  "source": "counts parsed from successful Windows CI job log"
+}

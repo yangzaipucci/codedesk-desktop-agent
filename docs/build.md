@@ -1,4 +1,4 @@
-# 构建与运行 1.1.0
+# 构建与运行 1.3.1
 
 源码启动和三步使用见 ../README.md。Windows x64，Python 3.12（开发），Node.js 24，Edge WebView2；分发包自带官方 Python 3.13.17 运行环境。
 
@@ -8,7 +8,7 @@
 
 ## 分发包
 
-执行 `python scripts/build_portable.py --installer --iscc "Inno Setup目录\ISCC.exe"`。输出位于 release/portable/1.1.0/：便携 ZIP、带 unsigned 标记的预览 Setup.exe 与 SHA256SUMS.txt。build/portable/1.1.0/CodeDesk/ 是完整可运行目录，双击 Start-CodeDesk.cmd。必须保留 app/ 和 runtime/。
+执行 `python scripts/build_portable.py --installer --iscc "Inno Setup目录\ISCC.exe"`。输出位于 release/portable/1.3.1/：便携 ZIP、带 unsigned 标记的预览 Setup.exe 与 SHA256SUMS.txt。build/portable/1.3.1/CodeDesk/ 是完整可运行目录，双击 Start-CodeDesk.cmd。必须保留 app/ 和 runtime/。
 
 运行环境从 python.org 下载并核对官方 SHA256；应用依赖用锁定版本安装，前端离线打包。portable-manifest.json 记录版本、源码提交及逐文件 SHA256。包内不包含用户设置、真实 Key、虚拟环境或本地会话。
 

@@ -56,8 +56,8 @@ jobs:
           }
       - run: python scripts/build_portable.py --installer
       - name: Install, start, call MCP, uninstall
-        run: python scripts/smoke_runtime_installer.py --installer release/portable/1.3.0/CodeDesk-Setup-1.3.0-unsigned.exe --bundle build/portable/1.3.0/CodeDesk
+        run: python scripts/smoke_runtime_installer.py --installer release/portable/1.3.1/CodeDesk-Setup-1.3.1-unsigned.exe --bundle build/portable/1.3.1/CodeDesk
       - uses: actions/upload-artifact@v4
         with:
           name: codedesk-windows-preview
-          path: release/portable/1.3.0/
+          path: release/portable/1.3.1/

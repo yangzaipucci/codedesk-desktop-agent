@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import tempfile
 import unittest
+import subprocess
 from unittest.mock import patch
 
 from agent.capabilities import project_guidance
@@ -50,6 +51,21 @@ class ContractTests(unittest.TestCase):
 
 
 class CacheTests(unittest.IsolatedAsyncioTestCase):
+    async def test_review_diff_excludes_credentials_even_when_tracked(self):
+        from agent.reviewer import run_diff
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);tools=Tools(root,root/'state')
+            (root/'.env').write_text('PLACEHOLDER=before\n',encoding='utf-8')
+            (root/'source.py').write_text('value=1\n',encoding='utf-8')
+            subprocess.run(['git','init','-q'],cwd=root,check=True,capture_output=True)
+            subprocess.run(['git','add','-f','.env','source.py'],cwd=root,check=True,capture_output=True)
+            (root/'.env').write_text('PLACEHOLDER=private-fixture-must-not-appear\n',encoding='utf-8')
+            (root/'source.py').write_text('value=2\n',encoding='utf-8')
+            diff=await run_diff('git diff',tools)
+            self.assertTrue(diff['ok']);self.assertIn('value=2',diff['stdout'])
+            self.assertNotIn('private-fixture',diff['stdout']);self.assertNotIn('.env',diff['stdout'])
+            with self.assertRaises(ValueError):diff_arguments('git diff -- .env',tools)
+
     async def test_same_size_same_timestamp_repair_uses_source(self):
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder);tools=Tools(root,root/'state')

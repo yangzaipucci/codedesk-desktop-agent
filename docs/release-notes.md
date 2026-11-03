@@ -1,4 +1,4 @@
-# CodeDesk 1.3.0：完整增量作业交付
+# CodeDesk 1.3.1：完整增量作业交付
 
 - 根目录六个可移植技能，description 场景触发、渐进披露与离线BPE计量。
 - 指定 skills/custom/daemon 三条模块验收命令，字段按作业结构生成。
@@ -11,4 +11,4 @@
 历史材料、历史发布及原有标签保留，未补造七天提交记录。
 
 仓库：https://github.com/yangzaipucci/codedesk-desktop-agent
-发布页：https://github.com/yangzaipucci/codedesk-desktop-agent/releases/tag/v1.3.0
+发布页：https://github.com/yangzaipucci/codedesk-desktop-agent/releases/tag/v1.3.1

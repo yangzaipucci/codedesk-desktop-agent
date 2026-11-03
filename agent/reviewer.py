@@ -22,15 +22,20 @@ def diff_arguments(command, tools):
     if parts[:2] != ['git','diff']:
         raise ValueError('审查命令只允许 git diff；替代方案：git diff --stat。')
     allowed={'--stat','--name-only','--numstat','--cached','--staged','--no-ext-diff','--no-textconv','--unified=3'}
-    paths=False
+    paths=False;options=[];filenames=[]
     for item in parts[2:]:
         if item=='--': paths=True;continue
         if paths:
             if item.startswith('-'):raise ValueError('diff 文件名不能是命令选项。')
+            if any(part.lower().startswith('.env') or part.lower().endswith(('.pem','.key','.pfx','.p12')) for part in Path(item.replace('\\','/')).parts):
+                raise ValueError('reviewer 不读取凭据文件的差异。')
             tools.resolve(item)
+            filenames.append(item)
         elif item not in allowed:
             raise ValueError('审查命令包含不允许的选项；替代方案：git diff --stat。')
-    return ['git','--no-pager','diff','--no-ext-diff','--no-textconv',*parts[2:]]
+        else:options.append(item)
+    excluded=[':(exclude,icase,glob)**/'+pattern for pattern in ('.env*','*.pem','*.key','*.pfx','*.p12')]
+    return ['git','--no-pager','diff','--no-ext-diff','--no-textconv',*options,'--',*(filenames or ['.']),*excluded]
 
 
 async def run_diff(command,tools):
