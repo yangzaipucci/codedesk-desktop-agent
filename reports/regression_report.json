@@ -1,12 +1,12 @@
 {
   "passed": true,
-  "backend_tests": 125,
-  "backend_seconds": 13.617,
+  "backend_tests": 126,
+  "backend_seconds": 15.467,
   "frontend_tests": 5,
   "frontend_passed": 5,
   "frontend_failed": 0,
-  "source_commit": "4f87565",
-  "workflow_url": "https://github.com/yangzaipucci/codedesk-desktop-agent/actions/runs/41662745068",
-  "job_id": 126009941330,
+  "source_commit": "6e04ec05f8b2f839cc81fbf5d393252205657a84",
+  "workflow_url": "https://github.com/yangzaipucci/codedesk-desktop-agent/actions/runs/41665338356",
+  "job_id": 126019009580,
   "source": "counts parsed from successful Windows CI job log"
 }

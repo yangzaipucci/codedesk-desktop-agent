@@ -1,28 +1,124 @@
 {
-  "file": "CodeDesk_Patches_Feishu_MCP_Tutorial.mp4",
-  "duration_seconds": 427.46666666666664,
-  "frames": 6412,
-  "fps": 15,
+  "file": "2_increment_walkthrough.mp4",
+  "duration_seconds": 295.0,
+  "frames": 4425,
+  "fps": 15.0,
+  "raw_resolution": [
+    1920,
+    1080
+  ],
   "resolution": [
     1920,
     1080
   ],
-  "speech": "Windows Microsoft Huihui / zh-CN / offline",
-  "captions": "burned-in and SRT",
-  "scope": "real UI keyframes + actual inspection reports + Feishu configuration tutorial; not continuous recording; no Feishu account authorized",
-  "sha256": "e6366808a1d822f370fe14973fb8d192da31e2ea4eeaa050f084002f0a58e727",
+  "recording_kind": "actual operation screen recording edit; two continuous source recordings; waiting removed",
+  "applicable_version": "1.3.1",
+  "model_tier": "controlled_provider_real_tools",
+  "chapters": 10,
+  "srt_cues": 35,
+  "sha256": "e8bbf026b650ae2b5367db648dd12360ef3590d968bd304306ce9bc61ad8ca32",
+  "raw_sha256": "3a09c0cef545756c3630fedd36b4eba5a580d6d54ea35257cbe64b4740813919",
+  "feishu_real_account_connected": false,
+  "editing_description": "实际操作录屏剪辑；取自两段连续的原生窗口录屏，只删去等待，中文配音与字幕后期添加。",
+  "raw_sources": [
+    {
+      "number": 1,
+      "sha256": "2cab5c446f06cf657578c49937f3d264aba341d085cd61071e60458015a7ff2e"
+    },
+    {
+      "number": 2,
+      "sha256": "91bfb26d3c320304f0577779cd9a59b049be8fd35b716fb6fd38a635c639ce9d"
+    }
+  ],
+  "raw_sources_preserved_privately": true,
+  "no_desktop_access_during_postproduction": true,
   "validation": {
     "full_audio_video_decode": "passed",
-    "sampled_caption_frames": 40,
-    "max_frame_mean_absolute_error": 1.7484768840020577,
-    "audio_seconds": 427.433375,
-    "audio_rms_pcm16": 3079.8780172115353,
-    "audio_peak_pcm16": 28065.0,
-    "audio_nonzero_ratio": 0.7625425249022728,
-    "srt_cues": 40,
-    "chapters": 20,
-    "configuration_template": "validated_as_example_without_credentials",
-    "feishu_real_account_connected": false,
-    "visual_review": "passed by video_review agent"
-  }
+    "decoded_video_frames": 4425,
+    "fps": 15.0,
+    "audio_seconds": 295.0,
+    "audio_rms_pcm16": 1803.7639215200338,
+    "audio_clipping_ratio": 0.0,
+    "srt_cues": 35,
+    "chapters": 10,
+    "sampled_frames": [
+      {
+        "name": "01_home",
+        "seconds": 13,
+        "stddev": 75.30404808812521,
+        "mean": 222.12893164866256
+      },
+      {
+        "name": "02_baseline",
+        "seconds": 38,
+        "stddev": 76.63855144608598,
+        "mean": 220.68485902134773
+      },
+      {
+        "name": "03_skills",
+        "seconds": 70,
+        "stddev": 73.53894560837786,
+        "mean": 223.62348813657408
+      },
+      {
+        "name": "04_guard",
+        "seconds": 99,
+        "stddev": 76.98779937090227,
+        "mean": 220.9516829025206
+      },
+      {
+        "name": "05_red_green",
+        "seconds": 136,
+        "stddev": 74.71505592353905,
+        "mean": 222.73354970421812
+      },
+      {
+        "name": "06_bad_diff",
+        "seconds": 158,
+        "stddev": 71.81684818189822,
+        "mean": 225.0085273598251
+      },
+      {
+        "name": "07_reviewer",
+        "seconds": 174,
+        "stddev": 74.80930586593405,
+        "mean": 221.79772360468107
+      },
+      {
+        "name": "08_daemon",
+        "seconds": 202,
+        "stddev": 76.43971566057033,
+        "mean": 220.8117237332819
+      },
+      {
+        "name": "09_settings",
+        "seconds": 228,
+        "stddev": 70.41268247776101,
+        "mean": 185.9271183770576
+      },
+      {
+        "name": "10_mcp",
+        "seconds": 264,
+        "stddev": 70.96136394874505,
+        "mean": 184.63584683641974
+      },
+      {
+        "name": "11_ports",
+        "seconds": 284,
+        "stddev": 75.07339885299905,
+        "mean": 222.0111357060185
+      }
+    ],
+    "visual_review": "passed: file-only independent review; matching diff/reviewer, readable subtitles, clear test boundaries",
+    "audio_listened": false,
+    "audio_verification_method": "full-stream decode, duration, PCM RMS, clipping and exact TTS narration inputs",
+    "audio_review": "full decode and waveform checks; not a claim of manual listening"
+  },
+  "settings_image": {
+    "file": "settings_from_recording.png",
+    "source": "continuous-supplement.mp4 at 128 seconds",
+    "sha256": "b6f64607d1ee7685c5dca545e209d4812189463c2f3ca56ed842f7e0c564bce7",
+    "new_desktop_capture": false
+  },
+  "video_bytes": 6010832
 }

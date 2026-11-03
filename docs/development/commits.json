@@ -1,7 +1,7 @@
 {
   "timezone": "Asia/Shanghai",
-  "application_baseline": "b2952d1a378238f9afa4d06929a446a0575b4fe2",
-  "scope": "All original commits through the application build baseline; documentation updates after the baseline are in GitHub history.",
+  "application_baseline": "6e04ec05f8b2f839cc81fbf5d393252205657a84",
+  "scope": "All genuine commits through the final application build baseline; this index update commit itself is not included.",
   "work_dates": [
     "2026-10-27",
     "2026-10-29",
@@ -12,33 +12,20 @@
   ],
   "git_commit_counts_by_date": {
     "2026-10-29": 23,
-    "2026-11-03": 4
+    "2026-11-03": 10
   },
-  "commit_count": 27,
+  "commit_count": 33,
   "commits": [
     {
       "commit": "951301c469aeaa73b7014bc46f165ee0e089466d",
       "author_date": "2026-10-29T11:52:07+08:00",
       "committer_date": "2026-10-29T11:52:07+08:00",
       "subject": "build: pin application dependencies and exclude local secrets",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/951301c469aeaa73b7014bc46f165ee0e089466d",
       "files": [
-        {
-          "status": "A",
-          "path": ".env.example"
-        },
-        {
-          "status": "A",
-          "path": ".gitignore"
-        },
-        {
-          "status": "A",
-          "path": "pyproject.toml"
-        },
-        {
-          "status": "A",
-          "path": "requirements-lock.txt"
-        }
+        ".env.example",
+        ".gitignore",
+        "pyproject.toml",
+        "requirements-lock.txt"
       ]
     },
     {
@@ -46,24 +33,11 @@
       "author_date": "2026-10-29T11:52:08+08:00",
       "committer_date": "2026-10-29T11:52:08+08:00",
       "subject": "feat: implement exact file tools and persistent conflict-safe undo",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/d2b1b580ff8c0b485e9a157148fec97ca47f5c67",
       "files": [
-        {
-          "status": "A",
-          "path": "agent/__init__.py"
-        },
-        {
-          "status": "A",
-          "path": "agent/changes.py"
-        },
-        {
-          "status": "A",
-          "path": "agent/tools.py"
-        },
-        {
-          "status": "A",
-          "path": "tests/test_tools.py"
-        }
+        "agent/__init__.py",
+        "agent/changes.py",
+        "agent/tools.py",
+        "tests/test_tools.py"
       ]
     },
     {
@@ -71,16 +45,9 @@
       "author_date": "2026-10-29T11:52:08+08:00",
       "committer_date": "2026-10-29T11:52:08+08:00",
       "subject": "feat: configure providers and Windows credential storage",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/67fd6162114f762a7f30a6b32756b7ef4695f99d",
       "files": [
-        {
-          "status": "A",
-          "path": "agent/settings.py"
-        },
-        {
-          "status": "A",
-          "path": "tests/test_settings.py"
-        }
+        "agent/settings.py",
+        "tests/test_settings.py"
       ]
     },
     {
@@ -88,16 +55,9 @@
       "author_date": "2026-10-29T11:52:08+08:00",
       "committer_date": "2026-10-29T11:52:08+08:00",
       "subject": "feat: stream compatible model replies with completion validation",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/d204aec3673d412c758284009fa66f2d8e969e0d",
       "files": [
-        {
-          "status": "A",
-          "path": "agent/provider.py"
-        },
-        {
-          "status": "A",
-          "path": "tests/test_provider.py"
-        }
+        "agent/provider.py",
+        "tests/test_provider.py"
       ]
     },
     {
@@ -105,20 +65,10 @@
       "author_date": "2026-10-29T11:52:08+08:00",
       "committer_date": "2026-10-29T11:52:08+08:00",
       "subject": "feat: integrate external MCP servers and bundled demonstration service",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/972c2ffebc13899d23bf3b94a6ffcfb3feec7ea5",
       "files": [
-        {
-          "status": "A",
-          "path": "agent/mcp_client.py"
-        },
-        {
-          "status": "A",
-          "path": "mcp.json"
-        },
-        {
-          "status": "A",
-          "path": "mcp_demo.py"
-        }
+        "agent/mcp_client.py",
+        "mcp.json",
+        "mcp_demo.py"
       ]
     },
     {
@@ -126,16 +76,9 @@
       "author_date": "2026-10-29T11:52:09+08:00",
       "committer_date": "2026-10-29T11:52:09+08:00",
       "subject": "feat: add bounded agent loop with cancellation and context management",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/ecf8bfe12216caa1209c96d4a1009368e08ba5b6",
       "files": [
-        {
-          "status": "A",
-          "path": "agent/runtime.py"
-        },
-        {
-          "status": "A",
-          "path": "tests/test_runtime.py"
-        }
+        "agent/runtime.py",
+        "tests/test_runtime.py"
       ]
     },
     {
@@ -143,20 +86,10 @@
       "author_date": "2026-10-29T11:52:09+08:00",
       "committer_date": "2026-10-29T11:52:09+08:00",
       "subject": "feat: expose authenticated local REST WebSocket and SSE endpoints",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/96d378baea48ce487cfabd8b06338c3d7cecb321",
       "files": [
-        {
-          "status": "A",
-          "path": "server/__init__.py"
-        },
-        {
-          "status": "A",
-          "path": "server/app.py"
-        },
-        {
-          "status": "A",
-          "path": "tests/test_server.py"
-        }
+        "server/__init__.py",
+        "server/app.py",
+        "tests/test_server.py"
       ]
     },
     {
@@ -164,20 +97,10 @@
       "author_date": "2026-10-29T11:52:09+08:00",
       "committer_date": "2026-10-29T11:52:09+08:00",
       "subject": "feat: add desktop workspace model settings and visible tool interaction",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/a41d02c1de19fa70775631b858b5c06cbd72f578",
       "files": [
-        {
-          "status": "A",
-          "path": "ui/app.js"
-        },
-        {
-          "status": "A",
-          "path": "ui/index.html"
-        },
-        {
-          "status": "A",
-          "path": "ui/style.css"
-        }
+        "ui/app.js",
+        "ui/index.html",
+        "ui/style.css"
       ]
     },
     {
@@ -185,12 +108,8 @@
       "author_date": "2026-10-29T11:52:09+08:00",
       "committer_date": "2026-10-29T11:52:09+08:00",
       "subject": "feat: launch native desktop window with independent backend mode",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/082c2aa3ade60c3b61666e6ceee77a964a452826",
       "files": [
-        {
-          "status": "A",
-          "path": "app.py"
-        }
+        "app.py"
       ]
     },
     {
@@ -198,20 +117,10 @@
       "author_date": "2026-10-29T11:52:10+08:00",
       "committer_date": "2026-10-29T11:52:10+08:00",
       "subject": "docs: include an isolated first-run example project",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/89586792703b606589307313601f7a32eee721a8",
       "files": [
-        {
-          "status": "A",
-          "path": "sample_workspace/README.md"
-        },
-        {
-          "status": "A",
-          "path": "sample_workspace/stats.py"
-        },
-        {
-          "status": "A",
-          "path": "sample_workspace/test_stats.py"
-        }
+        "sample_workspace/README.md",
+        "sample_workspace/stats.py",
+        "sample_workspace/test_stats.py"
       ]
     },
     {
@@ -219,16 +128,9 @@
       "author_date": "2026-10-29T11:52:10+08:00",
       "committer_date": "2026-10-29T11:52:10+08:00",
       "subject": "build: package Windows application MCP helper and installer",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/6488af878fc3de2912b9720a92eb8563c2f4a8e7",
       "files": [
-        {
-          "status": "A",
-          "path": "scripts/build_windows.py"
-        },
-        {
-          "status": "A",
-          "path": "scripts/installer.iss"
-        }
+        "scripts/build_windows.py",
+        "scripts/installer.iss"
       ]
     },
     {
@@ -236,16 +138,9 @@
       "author_date": "2026-10-29T11:52:10+08:00",
       "committer_date": "2026-10-29T11:52:10+08:00",
       "subject": "ci: run Windows regression checks and document license",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/0448e7ed164eb639c3bbfb313383ced48fc4f133",
       "files": [
-        {
-          "status": "A",
-          "path": ".github/workflows/ci.yml"
-        },
-        {
-          "status": "A",
-          "path": "LICENSE"
-        }
+        ".github/workflows/ci.yml",
+        "LICENSE"
       ]
     },
     {
@@ -253,20 +148,10 @@
       "author_date": "2026-10-29T11:52:10+08:00",
       "committer_date": "2026-10-29T11:52:10+08:00",
       "subject": "docs: write complete setup usage and architectural report",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/aca724e6dbd4fdce4127b973ce4830824422cbb6",
       "files": [
-        {
-          "status": "A",
-          "path": "README.md"
-        },
-        {
-          "status": "A",
-          "path": "docs/build.md"
-        },
-        {
-          "status": "A",
-          "path": "report.md"
-        }
+        "README.md",
+        "docs/build.md",
+        "report.md"
       ]
     },
     {
@@ -274,28 +159,12 @@
       "author_date": "2026-10-29T11:52:11+08:00",
       "committer_date": "2026-10-29T11:52:11+08:00",
       "subject": "docs: add verified screenshots and actual tool recovery trace",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/8eeaa5ec2fde1144e7b509752eab6fd4c2c6b941",
       "files": [
-        {
-          "status": "A",
-          "path": "docs/screenshots/01-main.png"
-        },
-        {
-          "status": "A",
-          "path": "docs/screenshots/02-settings.png"
-        },
-        {
-          "status": "A",
-          "path": "docs/screenshots/03-tools.png"
-        },
-        {
-          "status": "A",
-          "path": "docs/trace.md"
-        },
-        {
-          "status": "A",
-          "path": "docs/validation.md"
-        }
+        "docs/screenshots/01-main.png",
+        "docs/screenshots/02-settings.png",
+        "docs/screenshots/03-tools.png",
+        "docs/trace.md",
+        "docs/validation.md"
       ]
     },
     {
@@ -303,20 +172,10 @@
       "author_date": "2026-10-29T11:52:11+08:00",
       "committer_date": "2026-10-29T11:52:11+08:00",
       "subject": "release: provide demonstration guide release notes and GitHub publishing script",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/de01204c70e303e0fe5fe95093e26b51438c70d8",
       "files": [
-        {
-          "status": "A",
-          "path": "docs/demo-guide.md"
-        },
-        {
-          "status": "A",
-          "path": "docs/release-notes.md"
-        },
-        {
-          "status": "A",
-          "path": "scripts/publish_github.ps1"
-        }
+        "docs/demo-guide.md",
+        "docs/release-notes.md",
+        "scripts/publish_github.ps1"
       ]
     },
     {
@@ -324,48 +183,17 @@
       "author_date": "2026-10-29T12:02:10+08:00",
       "committer_date": "2026-10-29T12:02:10+08:00",
       "subject": "test: verify packaged desktop MCP and undo API and record release evidence",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/3ce8a91429176ed57dcdb0f442c5449c3db75c1c",
       "files": [
-        {
-          "status": "M",
-          "path": ".github/workflows/ci.yml"
-        },
-        {
-          "status": "M",
-          "path": "README.md"
-        },
-        {
-          "status": "A",
-          "path": "demo.mp4"
-        },
-        {
-          "status": "M",
-          "path": "docs/demo-guide.md"
-        },
-        {
-          "status": "M",
-          "path": "docs/release-notes.md"
-        },
-        {
-          "status": "M",
-          "path": "docs/screenshots/01-main.png"
-        },
-        {
-          "status": "M",
-          "path": "docs/screenshots/02-settings.png"
-        },
-        {
-          "status": "M",
-          "path": "docs/screenshots/03-tools.png"
-        },
-        {
-          "status": "M",
-          "path": "docs/validation.md"
-        },
-        {
-          "status": "M",
-          "path": "tests/test_server.py"
-        }
+        ".github/workflows/ci.yml",
+        "README.md",
+        "demo.mp4",
+        "docs/demo-guide.md",
+        "docs/release-notes.md",
+        "docs/screenshots/01-main.png",
+        "docs/screenshots/02-settings.png",
+        "docs/screenshots/03-tools.png",
+        "docs/validation.md",
+        "tests/test_server.py"
       ]
     },
     {
@@ -373,12 +201,8 @@
       "author_date": "2026-10-29T12:07:49+08:00",
       "committer_date": "2026-10-29T12:07:49+08:00",
       "subject": "docs: record final 42-test pass and distribution acceptance boundaries",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/4abe8d998e3c2a33c20a004a6b5217c04cdb3bb4",
       "files": [
-        {
-          "status": "M",
-          "path": "docs/validation.md"
-        }
+        "docs/validation.md"
       ]
     },
     {
@@ -386,76 +210,24 @@
       "author_date": "2026-10-29T12:46:41+08:00",
       "committer_date": "2026-10-29T12:46:41+08:00",
       "subject": "Gate Windows releases on full signing and installation acceptance",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/0500e9fcd4d2b2b5b0dddfef61a8f944af3d0f42",
       "files": [
-        {
-          "status": "M",
-          "path": ".gitignore"
-        },
-        {
-          "status": "M",
-          "path": "README.md"
-        },
-        {
-          "status": "M",
-          "path": "agent/mcp_client.py"
-        },
-        {
-          "status": "M",
-          "path": "docs/build.md"
-        },
-        {
-          "status": "M",
-          "path": "docs/release-notes.md"
-        },
-        {
-          "status": "A",
-          "path": "docs/signed-release-notes.md"
-        },
-        {
-          "status": "A",
-          "path": "docs/signing.md"
-        },
-        {
-          "status": "M",
-          "path": "docs/validation.md"
-        },
-        {
-          "status": "M",
-          "path": "pyproject.toml"
-        },
-        {
-          "status": "M",
-          "path": "report.md"
-        },
-        {
-          "status": "M",
-          "path": "scripts/build_windows.py"
-        },
-        {
-          "status": "M",
-          "path": "scripts/installer.iss"
-        },
-        {
-          "status": "M",
-          "path": "scripts/publish_github.ps1"
-        },
-        {
-          "status": "A",
-          "path": "scripts/release_check.py"
-        },
-        {
-          "status": "A",
-          "path": "scripts/sign_windows.py"
-        },
-        {
-          "status": "A",
-          "path": "scripts/verify_installation.py"
-        },
-        {
-          "status": "A",
-          "path": "tests/test_signing.py"
-        }
+        ".gitignore",
+        "README.md",
+        "agent/mcp_client.py",
+        "docs/build.md",
+        "docs/release-notes.md",
+        "docs/signed-release-notes.md",
+        "docs/signing.md",
+        "docs/validation.md",
+        "pyproject.toml",
+        "report.md",
+        "scripts/build_windows.py",
+        "scripts/installer.iss",
+        "scripts/publish_github.ps1",
+        "scripts/release_check.py",
+        "scripts/sign_windows.py",
+        "scripts/verify_installation.py",
+        "tests/test_signing.py"
       ]
     },
     {
@@ -463,192 +235,53 @@
       "author_date": "2026-10-29T16:47:32+08:00",
       "committer_date": "2026-10-29T16:47:32+08:00",
       "subject": "Build 1.1 workbench with real online Q&A, editor modes and runtime distribution",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/0c142a0ef34bbc54d89d3a8330f3e20874ee6bb6",
       "files": [
-        {
-          "status": "M",
-          "path": ".github/workflows/ci.yml"
-        },
-        {
-          "status": "M",
-          "path": ".gitignore"
-        },
-        {
-          "status": "M",
-          "path": "README.md"
-        },
-        {
-          "status": "A",
-          "path": "agent/documents.py"
-        },
-        {
-          "status": "M",
-          "path": "agent/mcp_client.py"
-        },
-        {
-          "status": "A",
-          "path": "agent/modes.py"
-        },
-        {
-          "status": "A",
-          "path": "agent/network_guidance.py"
-        },
-        {
-          "status": "M",
-          "path": "agent/runtime.py"
-        },
-        {
-          "status": "M",
-          "path": "agent/settings.py"
-        },
-        {
-          "status": "A",
-          "path": "agent/tasks.py"
-        },
-        {
-          "status": "M",
-          "path": "agent/tools.py"
-        },
-        {
-          "status": "A",
-          "path": "agent/workspace.py"
-        },
-        {
-          "status": "M",
-          "path": "app.py"
-        },
-        {
-          "status": "M",
-          "path": "docs/build.md"
-        },
-        {
-          "status": "M",
-          "path": "docs/demo-guide.md"
-        },
-        {
-          "status": "M",
-          "path": "docs/release-notes.md"
-        },
-        {
-          "status": "M",
-          "path": "docs/signing.md"
-        },
-        {
-          "status": "M",
-          "path": "docs/validation.md"
-        },
-        {
-          "status": "A",
-          "path": "frontend/build.mjs"
-        },
-        {
-          "status": "A",
-          "path": "frontend/editor.js"
-        },
-        {
-          "status": "A",
-          "path": "frontend/index.html"
-        },
-        {
-          "status": "A",
-          "path": "frontend/main.js"
-        },
-        {
-          "status": "A",
-          "path": "frontend/styles.css"
-        },
-        {
-          "status": "A",
-          "path": "frontend/utils.js"
-        },
-        {
-          "status": "A",
-          "path": "mcp_network.py"
-        },
-        {
-          "status": "A",
-          "path": "package-lock.json"
-        },
-        {
-          "status": "A",
-          "path": "package.json"
-        },
-        {
-          "status": "M",
-          "path": "pyproject.toml"
-        },
-        {
-          "status": "M",
-          "path": "report.md"
-        },
-        {
-          "status": "M",
-          "path": "requirements-lock.txt"
-        },
-        {
-          "status": "A",
-          "path": "scripts/build_portable.py"
-        },
-        {
-          "status": "M",
-          "path": "scripts/build_windows.py"
-        },
-        {
-          "status": "M",
-          "path": "scripts/installer.iss"
-        },
-        {
-          "status": "A",
-          "path": "scripts/smoke_runtime_installer.py"
-        },
-        {
-          "status": "M",
-          "path": "scripts/verify_installation.py"
-        },
-        {
-          "status": "M",
-          "path": "server/app.py"
-        },
-        {
-          "status": "A",
-          "path": "tests/frontend.test.mjs"
-        },
-        {
-          "status": "A",
-          "path": "tests/test_documents_and_research.py"
-        },
-        {
-          "status": "M",
-          "path": "tests/test_runtime.py"
-        },
-        {
-          "status": "M",
-          "path": "tests/test_server.py"
-        },
-        {
-          "status": "A",
-          "path": "tests/test_workbench.py"
-        },
-        {
-          "status": "A",
-          "path": "ui/THIRD_PARTY_NOTICES.txt"
-        },
-        {
-          "status": "M",
-          "path": "ui/app.js"
-        },
-        {
-          "status": "A",
-          "path": "ui/app.js.LEGAL.txt"
-        },
-        {
-          "status": "M",
-          "path": "ui/index.html"
-        },
-        {
-          "status": "M",
-          "path": "ui/style.css"
-        }
+        ".github/workflows/ci.yml",
+        ".gitignore",
+        "README.md",
+        "agent/documents.py",
+        "agent/mcp_client.py",
+        "agent/modes.py",
+        "agent/network_guidance.py",
+        "agent/runtime.py",
+        "agent/settings.py",
+        "agent/tasks.py",
+        "agent/tools.py",
+        "agent/workspace.py",
+        "app.py",
+        "docs/build.md",
+        "docs/demo-guide.md",
+        "docs/release-notes.md",
+        "docs/signing.md",
+        "docs/validation.md",
+        "frontend/build.mjs",
+        "frontend/editor.js",
+        "frontend/index.html",
+        "frontend/main.js",
+        "frontend/styles.css",
+        "frontend/utils.js",
+        "mcp_network.py",
+        "package-lock.json",
+        "package.json",
+        "pyproject.toml",
+        "report.md",
+        "requirements-lock.txt",
+        "scripts/build_portable.py",
+        "scripts/build_windows.py",
+        "scripts/installer.iss",
+        "scripts/smoke_runtime_installer.py",
+        "scripts/verify_installation.py",
+        "server/app.py",
+        "tests/frontend.test.mjs",
+        "tests/test_documents_and_research.py",
+        "tests/test_runtime.py",
+        "tests/test_server.py",
+        "tests/test_workbench.py",
+        "ui/THIRD_PARTY_NOTICES.txt",
+        "ui/app.js",
+        "ui/app.js.LEGAL.txt",
+        "ui/index.html",
+        "ui/style.css"
       ]
     },
     {
@@ -656,56 +289,19 @@
       "author_date": "2026-10-29T16:59:02+08:00",
       "committer_date": "2026-10-29T16:59:02+08:00",
       "subject": "Verify real API repair and polish resizable desktop delivery",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/ae3f4b87689ad3d1611eab3f533265a69f84ca29",
       "files": [
-        {
-          "status": "A",
-          "path": "docs/real-api-debug-trace.md"
-        },
-        {
-          "status": "M",
-          "path": "docs/screenshots/01-main.png"
-        },
-        {
-          "status": "M",
-          "path": "docs/screenshots/02-settings.png"
-        },
-        {
-          "status": "M",
-          "path": "docs/screenshots/03-tools.png"
-        },
-        {
-          "status": "A",
-          "path": "docs/screenshots/04-qa.png"
-        },
-        {
-          "status": "M",
-          "path": "docs/validation.md"
-        },
-        {
-          "status": "M",
-          "path": "frontend/build.mjs"
-        },
-        {
-          "status": "M",
-          "path": "frontend/main.js"
-        },
-        {
-          "status": "M",
-          "path": "frontend/utils.js"
-        },
-        {
-          "status": "M",
-          "path": "report.md"
-        },
-        {
-          "status": "M",
-          "path": "tests/frontend.test.mjs"
-        },
-        {
-          "status": "M",
-          "path": "ui/app.js"
-        }
+        "docs/real-api-debug-trace.md",
+        "docs/screenshots/01-main.png",
+        "docs/screenshots/02-settings.png",
+        "docs/screenshots/03-tools.png",
+        "docs/screenshots/04-qa.png",
+        "docs/validation.md",
+        "frontend/build.mjs",
+        "frontend/main.js",
+        "frontend/utils.js",
+        "report.md",
+        "tests/frontend.test.mjs",
+        "ui/app.js"
       ]
     },
     {
@@ -713,20 +309,10 @@
       "author_date": "2026-10-29T17:03:07+08:00",
       "committer_date": "2026-10-29T17:03:07+08:00",
       "subject": "Refresh delivery video and signing instructions",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/f79ef1fbf05018c3d16f7d33c9c306e2c5176b5f",
       "files": [
-        {
-          "status": "M",
-          "path": "demo.mp4"
-        },
-        {
-          "status": "M",
-          "path": "docs/demo-guide.md"
-        },
-        {
-          "status": "M",
-          "path": "docs/signing.md"
-        }
+        "demo.mp4",
+        "docs/demo-guide.md",
+        "docs/signing.md"
       ]
     },
     {
@@ -734,64 +320,21 @@
       "author_date": "2026-10-29T17:10:19+08:00",
       "committer_date": "2026-10-29T17:10:19+08:00",
       "subject": "Fix Windows editor tab paths and finalize hand-in evidence",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/74da1979a157f452ae50a96be793bc3ebb030398",
       "files": [
-        {
-          "status": "M",
-          "path": "demo.mp4"
-        },
-        {
-          "status": "M",
-          "path": "docs/demo-guide.md"
-        },
-        {
-          "status": "M",
-          "path": "docs/screenshots/01-main.png"
-        },
-        {
-          "status": "M",
-          "path": "docs/screenshots/02-settings.png"
-        },
-        {
-          "status": "M",
-          "path": "docs/screenshots/03-tools.png"
-        },
-        {
-          "status": "M",
-          "path": "docs/screenshots/04-qa.png"
-        },
-        {
-          "status": "M",
-          "path": "docs/validation.md"
-        },
-        {
-          "status": "M",
-          "path": "frontend/main.js"
-        },
-        {
-          "status": "M",
-          "path": "frontend/styles.css"
-        },
-        {
-          "status": "M",
-          "path": "frontend/utils.js"
-        },
-        {
-          "status": "M",
-          "path": "report.md"
-        },
-        {
-          "status": "M",
-          "path": "tests/frontend.test.mjs"
-        },
-        {
-          "status": "M",
-          "path": "ui/app.js"
-        },
-        {
-          "status": "M",
-          "path": "ui/style.css"
-        }
+        "demo.mp4",
+        "docs/demo-guide.md",
+        "docs/screenshots/01-main.png",
+        "docs/screenshots/02-settings.png",
+        "docs/screenshots/03-tools.png",
+        "docs/screenshots/04-qa.png",
+        "docs/validation.md",
+        "frontend/main.js",
+        "frontend/styles.css",
+        "frontend/utils.js",
+        "report.md",
+        "tests/frontend.test.mjs",
+        "ui/app.js",
+        "ui/style.css"
       ]
     },
     {
@@ -799,12 +342,8 @@
       "author_date": "2026-10-29T17:26:27+08:00",
       "committer_date": "2026-10-29T17:26:27+08:00",
       "subject": "Publish validated preview packages directly from Windows CI artifacts",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/a9966f613115a4ad15ebe560807c4bf65e41d3c0",
       "files": [
-        {
-          "status": "A",
-          "path": ".github/workflows/preview-release.yml"
-        }
+        ".github/workflows/preview-release.yml"
       ]
     },
     {
@@ -812,208 +351,57 @@
       "author_date": "2026-11-03T18:48:14+08:00",
       "committer_date": "2026-11-03T18:48:14+08:00",
       "subject": "Add skills, customization hooks, durable jobs and authenticated MCP port",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/982dba64762ea48d7c1e5d7cc08b01e6f4641a9f",
       "files": [
-        {
-          "status": "M",
-          "path": ".github/workflows/ci.yml"
-        },
-        {
-          "status": "M",
-          "path": ".github/workflows/preview-release.yml"
-        },
-        {
-          "status": "A",
-          "path": "AGENTS.md"
-        },
-        {
-          "status": "M",
-          "path": "README.md"
-        },
-        {
-          "status": "A",
-          "path": "agent/capabilities.py"
-        },
-        {
-          "status": "A",
-          "path": "agent/cli.py"
-        },
-        {
-          "status": "A",
-          "path": "agent/daemon.py"
-        },
-        {
-          "status": "A",
-          "path": "agent/hooks.py"
-        },
-        {
-          "status": "A",
-          "path": "agent/inspection.py"
-        },
-        {
-          "status": "M",
-          "path": "agent/mcp_client.py"
-        },
-        {
-          "status": "A",
-          "path": "agent/mcp_service.py"
-        },
-        {
-          "status": "A",
-          "path": "agent/reviewer.py"
-        },
-        {
-          "status": "M",
-          "path": "agent/runtime.py"
-        },
-        {
-          "status": "M",
-          "path": "agent/settings.py"
-        },
-        {
-          "status": "A",
-          "path": "agent/skills.py"
-        },
-        {
-          "status": "M",
-          "path": "agent/tools.py"
-        },
-        {
-          "status": "A",
-          "path": "agent_assets/AGENTS.md"
-        },
-        {
-          "status": "A",
-          "path": "agent_assets/project-AGENTS.md"
-        },
-        {
-          "status": "A",
-          "path": "agent_assets/skills/code-review/SKILL.md"
-        },
-        {
-          "status": "A",
-          "path": "agent_assets/skills/python-tests/SKILL.md"
-        },
-        {
-          "status": "A",
-          "path": "agent_assets/skills/python-tests/scripts/run_tests.py"
-        },
-        {
-          "status": "A",
-          "path": "agent_assets/skills/web-research/SKILL.md"
-        },
-        {
-          "status": "M",
-          "path": "app.py"
-        },
-        {
-          "status": "A",
-          "path": "docs/patches-demo.mp4"
-        },
-        {
-          "status": "A",
-          "path": "docs/patches-validation.md"
-        },
-        {
-          "status": "M",
-          "path": "docs/release-notes.md"
-        },
-        {
-          "status": "A",
-          "path": "docs/screenshots/05-patches-120.png"
-        },
-        {
-          "status": "A",
-          "path": "examples/daemon-plan.json"
-        },
-        {
-          "status": "M",
-          "path": "frontend/index.html"
-        },
-        {
-          "status": "M",
-          "path": "frontend/main.js"
-        },
-        {
-          "status": "A",
-          "path": "frontend/patches.js"
-        },
-        {
-          "status": "M",
-          "path": "frontend/styles.css"
-        },
-        {
-          "status": "M",
-          "path": "mcp.json"
-        },
-        {
-          "status": "M",
-          "path": "package-lock.json"
-        },
-        {
-          "status": "M",
-          "path": "package.json"
-        },
-        {
-          "status": "M",
-          "path": "pyproject.toml"
-        },
-        {
-          "status": "M",
-          "path": "report.md"
-        },
-        {
-          "status": "A",
-          "path": "reports/custom_report.json"
-        },
-        {
-          "status": "A",
-          "path": "reports/daemon_report.json"
-        },
-        {
-          "status": "A",
-          "path": "reports/mcp_report.json"
-        },
-        {
-          "status": "A",
-          "path": "reports/skill_report.json"
-        },
-        {
-          "status": "A",
-          "path": "sample_workspace/AGENTS.md"
-        },
-        {
-          "status": "M",
-          "path": "scripts/build_portable.py"
-        },
-        {
-          "status": "M",
-          "path": "scripts/build_windows.py"
-        },
-        {
-          "status": "M",
-          "path": "scripts/smoke_runtime_installer.py"
-        },
-        {
-          "status": "M",
-          "path": "server/app.py"
-        },
-        {
-          "status": "A",
-          "path": "tests/test_patches.py"
-        },
-        {
-          "status": "M",
-          "path": "ui/app.js"
-        },
-        {
-          "status": "M",
-          "path": "ui/index.html"
-        },
-        {
-          "status": "M",
-          "path": "ui/style.css"
-        }
+        ".github/workflows/ci.yml",
+        ".github/workflows/preview-release.yml",
+        "AGENTS.md",
+        "README.md",
+        "agent/capabilities.py",
+        "agent/cli.py",
+        "agent/daemon.py",
+        "agent/hooks.py",
+        "agent/inspection.py",
+        "agent/mcp_client.py",
+        "agent/mcp_service.py",
+        "agent/reviewer.py",
+        "agent/runtime.py",
+        "agent/settings.py",
+        "agent/skills.py",
+        "agent/tools.py",
+        "agent_assets/AGENTS.md",
+        "agent_assets/project-AGENTS.md",
+        "agent_assets/skills/code-review/SKILL.md",
+        "agent_assets/skills/python-tests/SKILL.md",
+        "agent_assets/skills/python-tests/scripts/run_tests.py",
+        "agent_assets/skills/web-research/SKILL.md",
+        "app.py",
+        "docs/patches-demo.mp4",
+        "docs/patches-validation.md",
+        "docs/release-notes.md",
+        "docs/screenshots/05-patches-120.png",
+        "examples/daemon-plan.json",
+        "frontend/index.html",
+        "frontend/main.js",
+        "frontend/patches.js",
+        "frontend/styles.css",
+        "mcp.json",
+        "package-lock.json",
+        "package.json",
+        "pyproject.toml",
+        "report.md",
+        "reports/custom_report.json",
+        "reports/daemon_report.json",
+        "reports/mcp_report.json",
+        "reports/skill_report.json",
+        "sample_workspace/AGENTS.md",
+        "scripts/build_portable.py",
+        "scripts/build_windows.py",
+        "scripts/smoke_runtime_installer.py",
+        "server/app.py",
+        "tests/test_patches.py",
+        "ui/app.js",
+        "ui/index.html",
+        "ui/style.css"
       ]
     },
     {
@@ -1021,24 +409,11 @@
       "author_date": "2026-11-03T19:00:51+08:00",
       "committer_date": "2026-11-03T19:00:51+08:00",
       "subject": "Keep patch inspection JSON compatible with Windows console encodings",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/439b4796505e6606108518c371fc9774748ae6f8",
       "files": [
-        {
-          "status": "M",
-          "path": "README.md"
-        },
-        {
-          "status": "M",
-          "path": "agent/cli.py"
-        },
-        {
-          "status": "M",
-          "path": "app.py"
-        },
-        {
-          "status": "A",
-          "path": "tests/test_cli_encoding.py"
-        }
+        "README.md",
+        "agent/cli.py",
+        "app.py",
+        "tests/test_cli_encoding.py"
       ]
     },
     {
@@ -1046,12 +421,8 @@
       "author_date": "2026-11-03T21:14:27+08:00",
       "committer_date": "2026-11-03T21:14:27+08:00",
       "subject": "Preserve failed acceptance test diagnostics for installed runtimes",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/1872557ebd10c9ed810d1db4819a5068b16f6d62",
       "files": [
-        {
-          "status": "M",
-          "path": "agent/inspection.py"
-        }
+        "agent/inspection.py"
       ]
     },
     {
@@ -1059,40 +430,177 @@
       "author_date": "2026-11-03T21:21:35+08:00",
       "committer_date": "2026-11-03T21:21:35+08:00",
       "subject": "Handle transient Windows checkpoint locks and retain partial inspection results",
-      "url": "https://github.com/yangzaipucci/codedesk-desktop-agent/commit/b2952d1a378238f9afa4d06929a446a0575b4fe2",
       "files": [
-        {
-          "status": "M",
-          "path": "README.md"
-        },
-        {
-          "status": "M",
-          "path": "agent/capabilities.py"
-        },
-        {
-          "status": "M",
-          "path": "agent/cli.py"
-        },
-        {
-          "status": "M",
-          "path": "agent/daemon.py"
-        },
-        {
-          "status": "M",
-          "path": "agent/inspection.py"
-        },
-        {
-          "status": "M",
-          "path": "reports/custom_report.json"
-        },
-        {
-          "status": "M",
-          "path": "reports/mcp_report.json"
-        },
-        {
-          "status": "A",
-          "path": "tests/test_checkpoint_io.py"
-        }
+        "README.md",
+        "agent/capabilities.py",
+        "agent/cli.py",
+        "agent/daemon.py",
+        "agent/inspection.py",
+        "reports/custom_report.json",
+        "reports/mcp_report.json",
+        "tests/test_checkpoint_io.py"
+      ]
+    },
+    {
+      "commit": "5a1055b20d0d6fba5f4dc3363e151bfb6cf9bc5f",
+      "author_date": "2026-11-03T22:09:18+08:00",
+      "committer_date": "2026-11-03T22:09:18+08:00",
+      "subject": "docs: archive three development dates, original commits and MCP tutorial [skip ci]",
+      "files": [
+        "CHANGELOG.md",
+        "README.md",
+        "docs/development-log.md",
+        "docs/development/commit-index.md",
+        "docs/development/commits.json",
+        "docs/release-notes.md",
+        "docs/tutorial/CodeDesk_Patches_Feishu_MCP_Tutorial.mp4",
+        "docs/tutorial/README.md",
+        "docs/tutorial/validation.json",
+        "docs/tutorial/中文字幕.srt",
+        "docs/tutorial/操作步骤与官方资料.md",
+        "docs/tutorial/本机输入凭据与启动命令.txt",
+        "docs/tutorial/视频章节.txt",
+        "docs/tutorial/讲解文字稿.txt",
+        "docs/tutorial/飞书MCP配置示例.json",
+        "report.md"
+      ]
+    },
+    {
+      "commit": "712397fdfce6c53623e206def96430605f6bf023",
+      "author_date": "2026-11-03T22:11:56+08:00",
+      "committer_date": "2026-11-03T22:11:56+08:00",
+      "subject": "docs: describe implemented Markdown support precisely [skip ci]",
+      "files": [
+        "CHANGELOG.md",
+        "docs/development-log.md"
+      ]
+    },
+    {
+      "commit": "64a3001f874b27512c1468fbaea2dbd228c98bdf",
+      "author_date": "2026-11-03T23:04:00+08:00",
+      "committer_date": "2026-11-03T23:04:00+08:00",
+      "subject": "Implement portable skills and reproducible incremental A acceptance",
+      "files": [
+        "agent/capabilities.py",
+        "agent/course_fixtures.py",
+        "agent/course_inspection.py",
+        "agent/settings.py",
+        "agent/skills.py",
+        "agent/tokens.py",
+        "agent_assets/skills/code-review/SKILL.md",
+        "agent_assets/skills/fetch-issue/SKILL.md",
+        "agent_assets/skills/python-tests/SKILL.md",
+        "agent_assets/skills/review-diff/SKILL.md",
+        "agent_assets/skills/review-diff/scripts/collect_diff.py",
+        "agent_assets/skills/run-tests/SKILL.md",
+        "agent_assets/skills/web-research/SKILL.md",
+        "agent_assets/tokenizer/NOTICE.txt",
+        "agent_assets/tokenizer/cl100k_base.tiktoken",
+        "app.py",
+        "app/__init__.py",
+        "app/__main__.py",
+        "app/inspect.py",
+        "app/launcher.py",
+        "pyproject.toml",
+        "reports/skill_report.json",
+        "requirements-lock.txt",
+        "scripts/build_portable.py",
+        "skills/code-review/SKILL.md",
+        "skills/fetch-issue/SKILL.md",
+        "skills/python-tests/SKILL.md",
+        "skills/python-tests/scripts/run_tests.py",
+        "skills/review-diff/SKILL.md",
+        "skills/review-diff/scripts/collect_diff.py",
+        "skills/run-tests/SKILL.md",
+        "skills/web-research/SKILL.md"
+      ]
+    },
+    {
+      "commit": "fcfea3102974cdd7618ce2a1eea6c356c87f6d16",
+      "author_date": "2026-11-03T23:09:15+08:00",
+      "committer_date": "2026-11-03T23:09:15+08:00",
+      "subject": "Complete incremental B hooks self-repair and isolated diff review",
+      "files": [
+        ".gitattributes",
+        "AGENTS.md",
+        "agent/capabilities.py",
+        "agent/course_fixtures.py",
+        "agent/course_inspection.py",
+        "agent/hooks.py",
+        "agent/inspection.py",
+        "agent/reviewer.py",
+        "agent/runtime.py",
+        "agent_assets/AGENTS.md",
+        "agent_assets/project-AGENTS.md",
+        "app/selftest.py",
+        "reports/custom_report.json",
+        "tests/test_increment_contract.py",
+        "tests/test_patches.py"
+      ]
+    },
+    {
+      "commit": "4f87565cd55d28d01f10dc4308b115fc81341383",
+      "author_date": "2026-11-03T23:19:29+08:00",
+      "committer_date": "2026-11-03T23:19:29+08:00",
+      "subject": "Complete optional scheduled skills recovery notifications and assignment evidence",
+      "files": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/preview-release.yml",
+        "CHANGELOG.md",
+        "README.md",
+        "agent/capabilities.py",
+        "agent/cli.py",
+        "agent/course_fixtures.py",
+        "agent/course_inspection.py",
+        "agent/daemon.py",
+        "agent/inspection.py",
+        "agent/notifications.py",
+        "agent/scheduler.py",
+        "agent/skills.py",
+        "docs/demo-guide.md",
+        "docs/development-log.md",
+        "docs/release-notes.md",
+        "docs/validation.md",
+        "frontend/main.js",
+        "frontend/patches.js",
+        "package-lock.json",
+        "package.json",
+        "pyproject.toml",
+        "report.md",
+        "reports/baseline_report.json",
+        "reports/course_report.json",
+        "reports/custom_report.json",
+        "reports/daemon_report.json",
+        "reports/mcp_report.json",
+        "reports/measurement_report.json",
+        "routines.yaml",
+        "scripts/verify_course_reports.py",
+        "server/app.py",
+        "tests/test_scheduler.py",
+        "ui/app.js"
+      ]
+    },
+    {
+      "commit": "6e04ec05f8b2f839cc81fbf5d393252205657a84",
+      "author_date": "2026-11-03T23:34:27+08:00",
+      "committer_date": "2026-11-03T23:34:27+08:00",
+      "subject": "Exclude credentials from reviewer diffs and prepare final 1.3.1 package",
+      "files": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/preview-release.yml",
+        "CHANGELOG.md",
+        "README.md",
+        "agent/reviewer.py",
+        "docs/build.md",
+        "docs/development-log.md",
+        "docs/release-notes.md",
+        "docs/validation.md",
+        "package-lock.json",
+        "package.json",
+        "pyproject.toml",
+        "report.md",
+        "reports/regression_report.json",
+        "tests/test_increment_contract.py"
       ]
     }
   ]

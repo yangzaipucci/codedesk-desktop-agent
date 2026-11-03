@@ -2,7 +2,7 @@
 
 日期按北京时间记录。已核验的工作日期是 **2026-10-27、2026-10-29、2026-11-03**。10 月 27 日依据需求沟通和本地初始工作；10 月 29 日、11 月 3 日另有 Git 提交可核对。
 
-[提交索引](development/commit-index.md)覆盖应用构建基线 `b2952d1a378238f9afa4d06929a446a0575b4fe2` 及之前的 27 次提交：10 月 29 日 23 次，11 月 3 日 4 次。本次补充日志的文档提交另见 [仓库提交页](https://github.com/yangzaipucci/codedesk-desktop-agent/commits/main)。
+[提交索引](development/commit-index.md)覆盖当前应用构建提交 `6e04ec05f8b2f839cc81fbf5d393252205657a84` 及之前的 33 次真实提交；具体日期和修改文件由 Git 程序导出。该索引不包含更新索引本身的后续文档提交，完整历史见 [仓库提交页](https://github.com/yangzaipucci/codedesk-desktop-agent/commits/main)。
 
 ## 2026-10-27 需求与方案确认
 
@@ -108,3 +108,6 @@
 在收到两份完整课件和增量作业说明后，按逐项审查补齐技能可移植目录、指定验收入口、真实BPE计量、规则向上查找、强制推送拦截、三行失败摘要、两次自动修复、独立差异审查、定时技能和系统通知。开关对比与测试全部实际运行，受控模型验证和真实API能力分别标明。新增阶段标签保留历史发布，不改写日期、不补造七天提交。更新报告与编号2实际操作录屏，重新构建并验证安装包后生成新的最终确定档。
 
 实际提交：[技能阶段](https://github.com/yangzaipucci/codedesk-desktop-agent/commit/64a3001)、[定制阶段](https://github.com/yangzaipucci/codedesk-desktop-agent/commit/fcfea31)。其余当前提交见仓库提交页；历史提交索引保持其明确标注的快照范围。
+
+
+最终补充：审查员获取 Git diff 时也排除已被跟踪的凭据文件，新增真实专项回归。1.3.1 的 Windows 测试、安装、MCP 与卸载检查均通过，详细结果见 reports/regression_report.json 与安装包功能收据。
