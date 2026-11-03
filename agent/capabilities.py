@@ -4,18 +4,20 @@ import os
 from pathlib import Path
 import time
 
-FEATURES = ('skills', 'custom', 'hooks', 'autotest', 'reviewer', 'daemon')
-DEFAULT_PROFILE = 'custom'
+FEATURES = ('skills', 'custom', 'hooks', 'autotest', 'reviewer', 'daemon', 'scheduler', 'resume', 'notifications')
+DEFAULT_PROFILE = 'all'
 
 
 def default_enabled(name):
-    return name == 'skills' or DEFAULT_PROFILE == 'all' or DEFAULT_PROFILE == 'custom' and name != 'daemon'
+    return name == 'skills' or DEFAULT_PROFILE == 'all' or DEFAULT_PROFILE == 'custom' and name not in {'daemon','scheduler','resume','notifications'}
 
 
 def enabled(name, directory=None):
     if os.environ.get('CODEDESK_LEGACY', '').lower() in {'1', 'true'}:
         return False
     if name in {'hooks', 'autotest', 'reviewer'} and not enabled('custom', directory):
+        return False
+    if name in {'scheduler','resume','notifications'} and not enabled('daemon', directory):
         return False
     override = os.environ.get('ENABLE_' + name.upper())
     if override is not None:

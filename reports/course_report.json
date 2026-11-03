@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "checks": {
+    "three_skill_forms": true,
+    "progressive_disclosure": true,
+    "six_trials_including_negative": true,
+    "no_false_positive": true,
+    "same_code_off_on": true,
+    "rules_found_within_limit": true,
+    "denials_have_reasons": true,
+    "real_red_to_green": true,
+    "reviewer_context_isolated": true,
+    "optional_two_capabilities": true,
+    "optional_required_fields": true,
+    "all_executable_reports_passed": true
+  }
+}

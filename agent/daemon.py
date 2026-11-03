@@ -113,6 +113,8 @@ class Daemon:
             job = self.get(identity)
             if job['status'] == 'completed':
                 return job
+            if not enabled('resume',self.settings.directory) and (job['status'] in {'running','interrupted','failed'} or any(s['status']=='completed' for s in job['steps'])):
+                raise ValueError('断点恢复已关闭，保留原记录；启用 ENABLE_RESUME 后可继续。')
             root = Path(job['workspace'])
             tools = Tools(root, self.settings.directory)
             job['status'] = 'running'
@@ -166,14 +168,21 @@ class Daemon:
             atomic_json(self.path(identity), job)
             notice = self.directory / 'notifications' / (identity + '.json')
             if not notice.exists():
-                atomic_json(notice, {'id': identity, 'name': job['name'], 'status': 'completed', 'time': datetime.now(timezone.utc).isoformat()})
+                record={'id':identity,'name':job['name'],'status':'completed','time':datetime.now(timezone.utc).isoformat()}
+                if enabled('notifications',self.settings.directory):
+                    from agent.notifications import notify_completion
+                    record['system_notification']=await notify_completion(job['name'])
+                atomic_json(notice, record)
             return job
 
-    async def watch(self, interval=5, once=False):
+    async def watch(self, interval=5, once=False, routines=None):
         self.require_enabled()
         if not 1 <= interval <= 3600:
             raise ValueError('轮询间隔需要 1–3600 秒。')
         while True:
+            if routines is not None:
+                from agent.scheduler import Scheduler
+                await Scheduler(self.settings).tick(routines)
             for item in self.summaries()['jobs']:
                 if item['status'] in {'pending', 'running', 'interrupted'}:
                     try:

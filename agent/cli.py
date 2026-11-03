@@ -22,6 +22,7 @@ def main(argv=None):
     run=actions.add_parser('run');run.add_argument('id');run.add_argument('--step-delay',type=float,default=0)
     actions.add_parser('list')
     watch=actions.add_parser('watch');watch.add_argument('--interval',type=float,default=5);watch.add_argument('--once',action='store_true')
+    watch.add_argument('--routines',type=Path,help='Project routines.yaml; scheduled skills use desktop model settings')
     args=parser.parse_args(argv)
     if args.command=='mcp':
         from agent.mcp_service import serve
@@ -47,6 +48,6 @@ def main(argv=None):
     if args.action=='create':result=worker.create(json.loads(args.plan.read_text(encoding='utf-8-sig')))
     elif args.action=='list':result=worker.summaries()
     elif args.action=='run':result=asyncio.run(worker.run(args.id,args.step_delay))
-    else:result=asyncio.run(worker.watch(args.interval,args.once))
+    else:result=asyncio.run(worker.watch(args.interval,args.once,args.routines))
     # No model keys are printed. Job details may contain private project data.
     if result is not None:print(json.dumps(result,ensure_ascii=True,indent=2))

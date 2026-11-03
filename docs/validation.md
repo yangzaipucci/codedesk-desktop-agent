@@ -1,38 +1,17 @@
-# 1.1.0 验证记录
+# 1.3.0 验证与复现
 
-记录日期：2026-10-29。测试、真实模型调用、网络工具与安装功能检查分别保留各自证据，不互相替代。
+运行 README 的三条 python -m app.inspect 指定命令，退出码0才通过。JSON 中 test_tier 与 token_measure 说明证据层级，任何一步失败不会伪报通过。
 
-## 自动检查
+- reports/skill_report.json：六技能、九条触发、零误触发、BPE渐进披露、同代码关闭/开启对比、真实脚本与MCP。
+- reports/custom_report.json：上级规则、拒绝原因、真实Runtime两次红转绿、三行摘要、只读审查与上下文计量。
+- reports/daemon_report.json：实际硬终止进程、第4步恢复、三次到点技能、重复轮询去重、实际系统通知请求。
+- reports/mcp_report.json：HTTP服务认证401、来源403、发现工具与实际调用。
+- reports/baseline_report.json：禁用增量后实际检查四工具、图片与界面资源。
+- reports/course_report.json：独立校验器检查指定字段及阈值。运行 python scripts/verify_course_reports.py reports 可复核。
+- reports/measurement_report.json：同一份技能的字节/BPE计量差异，用于报告的真实判断纠正。
 
-- Python unittest：98 项通过（26.135 秒）。包括真实读写/精确编辑/失败恢复/撤销/命令树停止，MCP 子进程，模型流错误与脱敏，编辑冲突，Ask/Plan 路由限制，串行队列与取消，普通会话恢复与任务隔离，PDF/DOCX，计算和公网请求限制，签名发布门禁。
-- npm test：5 项通过。npm run build：离线 UI 构建成功。
-- 所有程序使用限制、超时与输出上限；未使用跳过失败来制造通过记录。
+后端测试 python -m unittest discover -s tests -q，前端 npm test，构建 npm run build。安装包从对应成功的 Windows CI 产物发布，随包 functional-installation.json 绑定安装器哈希，验证安装、资源、启动、MCP、补丁报告与卸载。portable-manifest.json 绑定实际源提交。
 
-## 应用内真实 DeepSeek API
+这些自动验收使用稳定受控模型，不需要提供真实API Key，也不冒充真实模型质量评价。生产对话和审查调用桌面配置的服务。飞书真实账号未授权，配置教程不等同于账号已连通。
 
-用户在 CodeDesk 桌面设置填写并保存自己的 Key，测试不读取或展示密钥。实际模型为 deepseek-flash。
-
-1. 日期：调用 current_time，回答 2026-10-29、星期四、北京时间，与系统时钟相符。
-2. 南京天气：调用 Open-Meteo，核对江苏南京坐标、接口时间、气温和今日范围，附原始来源。测试窗口本次观测 15:30 气温 19.6°C；这是当时返回的数据，不能当作任何时候的固定天气。
-3. 代码解释：关联实际 stats.py，read 后解释 mean([]) 除零原因，未修改文件。
-4. 文献：实际 Crossref 检索，返回 3 条可追溯 DOI 元数据。arXiv 在本网络连接失败，真实记录保留失败后改用 Crossref 的过程。补充明确“未核验同行评审”，不能把元数据当全文。
-
-通用网页搜索另作实际网络工具测试：“Python official documentation”返回 Python.org 与 docs.python.org 原始链接。公开检索无额外搜索 Key；模型总结仍调用用户配置的 API。查询时搜索引擎可能限流，成功结果不能保证所有网络环境持续可达。
-
-## 桌面与分发
-
-官方 Python 运行环境的 python.exe、pythonw.exe、python313.dll 原厂签名有效。1.1.0 独立运行环境已启动原生 CodeDesk 窗口；界面默认浅色，用户实际完成过天气查询。新布局与新包的最终验证记录随发布更新。
-
-安装器采用 Inno Setup，GitHub CI 运行安装/启动/UI/MCP/卸载功能检查，结果以对应工作流与 functional-installation.json 为准。受信任签名流程另见 signing.md。
-
-## 验证边界
-
-使用的是 DeepSeek 真 Key；其他服务商仅提供兼容配置和适配测试。扫描 PDF/OCR、Cursor 扩展市场、完整语言服务器和预测补全不在已实现范围。没有证明任何未执行过的模型回答、联网源或系统信任策略已通过。
-
-## 最终交互与代码实测
-
-新版终端上沿可拖动，键盘上移后输出区从 122px 增至 142px。右侧代码块数检查为 0，代码显示在中间虚拟标签或实际文件。长会话恢复将相邻流片段合并后绘制，避免逐字重放卡顿。
-
-使用用户配置的真实 DeepSeek API，在与原生窗口相同的后端处理新建 invoice.py：先复现 2 个失败测试，read 后用 edit 只改一行计税公式，复测 2 项通过。额外 test_stats 暴露的示例已知问题不在本次修改范围，模型如实说明而未擅自修改。筛选后的工具状态记录见 real-api-debug-trace.md，不公开原始私有会话。
-
-Windows 工作流的 windows 与 package 作业均已成功，包含安装、逐文件比对、启动、UI、示例项目、独立 MCP 和卸载。发布附件中的 functional-installation.json 可核对对应安装包哈希。
+本机全部回归结果为124项后端、5项前端通过；发布以对应 Windows CI 与安装功能收据为准。系统通知字段表示Windows接口已接受，实际可见性由系统设置决定。

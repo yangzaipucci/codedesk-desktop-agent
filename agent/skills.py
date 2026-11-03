@@ -2,6 +2,7 @@
 import json
 from pathlib import Path
 import re
+import yaml
 
 from agent.capabilities import assets, enabled
 from agent.tokens import count_tokens, TOKEN_MEASURE
@@ -25,9 +26,10 @@ class Skills:
                     if not source.startswith('---\n'):
                         source = source.replace('\r\n', '\n')
                     _, header, body = source.split('---', 2)
-                    meta = dict(line.split(':', 1) for line in header.strip().splitlines() if ':' in line)
-                    meta = {k.strip(): v.strip() for k, v in meta.items()}
-                    name, description = meta['name'], meta['description'].strip('"\'')
+                    meta = yaml.safe_load(header)
+                    if not isinstance(meta,dict) or not isinstance(meta.get('name'),str) or not isinstance(meta.get('description'),str):
+                        continue
+                    name, description = meta['name'], meta['description']
                     # Descriptions are the portable source of trigger scenarios.
                     # The catalog is also available to the model for semantic selection.
                     triggers = re.findall(r'[“"]([^”"\n]+)[”"]', description)
@@ -36,7 +38,7 @@ class Skills:
                     if not isinstance(triggers, list) or not all(isinstance(t, str) and 1 <= len(t) <= 80 for t in triggers):
                         continue
                     self.entries[name] = {'name': name, 'description': description, 'triggers': triggers, 'root': path.parent.resolve(), 'body': body, 'source': source}
-                except (OSError, ValueError, KeyError):
+                except (OSError, ValueError, KeyError, yaml.YAMLError):
                     continue
 
     def catalog(self):

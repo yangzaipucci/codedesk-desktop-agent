@@ -101,3 +101,10 @@
 - [逐条提交索引](development/commit-index.md)：日期、原始提交说明、改动文件及提交链接。
 - [机器可读提交记录](development/commits.json)：应用基线之前的作者时间、提交时间和文件路径。
 - [修改摘要](../CHANGELOG.md)、[补丁验收说明](patches-validation.md)及 [四份报告](../reports/)。
+
+
+### 2026-11-03：完整增量要求对齐
+
+在收到两份完整课件和增量作业说明后，按逐项审查补齐技能可移植目录、指定验收入口、真实BPE计量、规则向上查找、强制推送拦截、三行失败摘要、两次自动修复、独立差异审查、定时技能和系统通知。开关对比与测试全部实际运行，受控模型验证和真实API能力分别标明。新增阶段标签保留历史发布，不改写日期、不补造七天提交。更新报告与编号2连续操作录像，重新构建并验证安装包后生成新的最终确定档。
+
+实际提交：[技能阶段](https://github.com/yangzaipucci/codedesk-desktop-agent/commit/64a3001)、[定制阶段](https://github.com/yangzaipucci/codedesk-desktop-agent/commit/fcfea31)。其余当前提交见仓库提交页；历史提交索引保持其明确标注的快照范围。

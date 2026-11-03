@@ -1,0 +1,9 @@
+# 开启前把 enabled 改成 true；实际模型通过桌面设置配置。
+routines:
+  - id: focused-project-tests
+    enabled: false
+    skill: run-tests
+    every_seconds: 3600
+    prompt: 跑测试，只验证并总结，不修改项目文件。
+# 一次性时间示例（需要时替换 every_seconds，不能两者同时设置）：
+# at: "2026-11-04T15:00:00+08:00"

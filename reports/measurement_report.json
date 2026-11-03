@@ -1,0 +1,9 @@
+{
+  "catalog_utf8_bytes": 1121,
+  "full_utf8_bytes": 10073,
+  "catalog_bpe_tokens": 302,
+  "full_bpe_tokens": 2319,
+  "byte_ratio": 8.986,
+  "bpe_ratio": 7.679,
+  "conclusion": "Byte bounds and BPE token counts are different measurements; use the bundled offline BPE for assignment reports."
+}

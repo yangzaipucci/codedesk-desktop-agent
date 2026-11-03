@@ -6,17 +6,21 @@ Python 原生桌面代码助手与问答智能体。默认浅色，可切换深�
 
 开发记录：[三天开发日志](docs/development-log.md)（2026-10-27、10-29、11-03） · [修改摘要](CHANGELOG.md) · [逐条提交索引](docs/development/commit-index.md)。10 月 27 日为需求与本地过程记录，另外两天有 Git 提交。
 
-操作教程：[三个补丁与飞书 MCP 视频、字幕和配置](docs/tutorial/README.md)（约 7 分 07 秒，中文配音及字幕；实际操作关键画面，非连续录屏）。飞书真实账号授权需使用者自行完成。
+操作演示：[编号2：增量作业真实操作视频、字幕与章节](docs/tutorial/README.md)。视频明确区分受控模型验证与真实 API 使用；飞书账号授权仍需使用者自行完成。
 
 ## 三步使用
 
-1. 从 [Release](https://github.com/yangzaipucci/codedesk-desktop-agent/releases) 下载对应版本安装包并安装；也可完整解压便携 ZIP，双击 `Start-CodeDesk.cmd`。本次源码补丁版本为 **1.2.0**。
+1. 从 [Release](https://github.com/yangzaipucci/codedesk-desktop-agent/releases) 下载对应版本安装包并安装；也可完整解压便携 ZIP，双击 `Start-CodeDesk.cmd`。本次源码与安装包版本为 **1.3.0**。
 2. 在右上角“模型与连接”选择服务、模型，输入自己的 API Key，测试后保存。可选保存到 Windows 凭据管理器。
 3. 打开项目文件夹，选择助手模式并发送需求。中间编辑代码，右侧查看结果，底部显示实际命令输出。
 
 运行环境为 Windows x64 与 Microsoft Edge WebView2 Runtime。分发包自带 Python，不要求老师另装 Python。未配置 Key 时仍可手动编辑、搜索文件和运行终端；模型对话需有效 Key 与网络。
 
 ![浅色桌面工作台](docs/screenshots/01-main.png)
+
+![代码差异与工具调用](docs/screenshots/03-tools.png)
+
+![模型与连接设置](docs/screenshots/02-settings.png)
 
 ## 可以完成什么
 
@@ -29,74 +33,74 @@ Python 原生桌面代码助手与问答智能体。默认浅色，可切换深�
 
 四个内置模型工具严格为 **read / write / edit / bash**。联网、计算、时间工具通过独立 MCP 进程接入并标注来源。工具参数、真实输出、diff 与失败记录都可以查看。
 
-## 1.2.0：给基础智能体补齐三个补丁
+## 1.3.0：按增量作业完成 A、B 与选做 C
 
-保留 read / write / edit / bash 四个内置工具和现有桌面界面。新增能力接入真实运行流程，而非只增加说明文件。右上角“模型与连接 → 技能、定制与常驻任务”可分别关闭。
+本次以 `增量作业_给Cursor装技能.md` 的行为和验收字段为准，四个内置工具继续是 read / write / edit / bash。
 
-### A. 技能系统：目录先注入，正文按需读
+### A：可移植技能与渐进披露
 
-- 提供三个实际技能：`code-review`（纯流程提示）、`python-tests`（附可运行测试脚本）、`web-research`（调用现有 MCP）。
-- 搜索顺序为随包 `agent_assets/skills/`、用户数据目录 `skills/`、项目 `.codedesk/skills/`，同名项目技能优先。每项使用 `name`、`description`、`triggers` 的 YAML 头部与 SKILL.md 正文。
-- 主上下文先注入名称、短描述和 `skill://名称/SKILL.md` 地址；正文不会全部塞入。任务匹配触发词或 `/skill 名称` 时，提示模型通过原来的 **read** 加载正文。Ask/Plan 仍无写入和执行权限。
-- 带脚本技能的 read 结果包含实际 `package_file` 路径，Agent/Debug 可通过 bash 执行；脚本不会因技能发现而自动运行。
-- `skill_report.json` 实测目录与正文大小、披露比例、六条正反触发用例、误触发数及按需加载。度量采用 **UTF-8 字节 token 上界**，不是厂商账单，也不伪称使用了 DeepSeek 的精确 tokenizer。
+根目录 `skills/` 包含六个可带走的技能，每项不超过80行：
 
-### B. 定制层：规则、硬拦截、自动测试、只读审查
+- `run-tests`：纯流程提示，跑测试并报告失败。
+- `review-diff`：带 `scripts/collect_diff.py`，实际收集 Git 差异和统计。
+- `fetch-issue`：通过已连接 MCP 的 `fetch_webpage` 读取公开 Issue。
+- 保留原有 `code-review`、带脚本的 `python-tests`、走 MCP 的 `web-research`。
 
-- 根目录提供 **30 行 AGENTS.md**，写明构建/测试命令、目录职责和安全边界。运行时自动加载全局与当前项目两层规则；全局优先读取 `%LOCALAPPDATA%\CodeDesk\AGENTS.md`，不存在时使用随包全局模板。
-- 全局、项目规则注入合计最多 350 字节，完整文件较长时会裁剪并在报告标记 `truncated`。只读审查回传摘要使用剩余额度，**定制层给主上下文增加的总量不超过 500 个 UTF-8 字节 token 上界**；技能目录由 A 单独度量。
-- 三条实际 hook：`pre_tool` 在动作前拦截强制递归删除、凭据文件写入和部分隐藏执行命令，并返回替代方案；`post_edit` 在 Python 修改后先检查语法，再运行同目录相关 `test_<模块>.py`；`stop` 将本次修改交给独立 reviewer。
-- reviewer 使用独立模型上下文，只提供 read，并再次检查调用白名单；即使模型返回 write/bash，也不会执行。子上下文不复制整个主会话，审查结果单独落盘，摘要才回到主会话。审查受步数、时间和 token 预算约束。
-- reviewer 额外拒绝读取 `.env` 和私钥/证书文件，避免把凭据带入审查上下文。
-- 自动测试没有匹配用例会明确“跳过”，语法或测试失败会原样交给模型处理；不把文件写入成功误当作测试通过。审查超时、连接失败也不会被标成通过。
-- 这是 CodeDesk 自己的 hook，不是修改使用者电脑上的 Codex/Cursor 全局 hooks。策略检查不是操作系统隔离，不能保证识别任意混淆脚本；bash 的权限边界见下文。
+发现顺序为随包技能、源码根技能、用户数据目录 `skills/`、项目 `.codedesk/skills/`、项目根 `skills/`；后者覆盖同名项。目录按名称稳定排序，模型先看到 name/description；`description` 明确包含 Use this when 场景和触发语。正文与脚本通过 `read(skill://名称/文件)` 按需读取；内部提供 `Skills.use_skill(name)`，没有增加第五个内置工具。
 
-### C. 常驻任务：逐步落盘、断点恢复、完成通知
+token 使用随包离线 cl100k_base BPE 分词表计算，**不是 UTF-8 字节数，也不是 DeepSeek 账单 token**。报告含九条正反试验、三种形态、零误触发检查、实际脚本与 MCP 调用，以及同代码同任务开关对比。受控试验用于重复验证机制，不代表真实模型普遍提速。
 
-- 提供 `daemon create/run/watch/list`，支持崩溃续跑、定时轮询和完成通知，进程无须依赖桌面窗口一直打开。仅在用户明确运行命令或调用对应本机 API 时启动，不自动安装开机服务。
-- 每步执行前后原子落盘，使用内核锁防止同一任务被两个进程同时执行。强制结束进程后，已完成步骤不会从头再跑；内核锁随进程退出释放。
-- Windows 短暂文件共享锁会限次重试读取与替换检查点；持续无权限仍报错，不跳过保存。验收分阶段保存报告，后续失败时保留已完成项目和具体测试错误。
-- `write` 通过内容 SHA256 判断完成与重入；若写入已完成但检查点尚未更新，重启会识别已有结果。若中断后被人工改动，则报告冲突并拒绝覆盖。
-- `read` 为可重复的只读步骤；`agent` 可调用真实智能体，但必须提供目标文件 `expected_sha256` 完成条件。任意外部命令、服务副作用不保证 exactly-once，不能把文件步骤的幂等保证推广到一切动作。
-- 完成通知按任务 ID 去重，保存在用户数据目录 `daemon/notifications/`，运行中的桌面会显示提示；CLI `daemon list` 也能查看。定时轮询只处理待执行/中断任务，不无限重试失败任务。
+### B：规则、三个 hook 与独立审查
 
-示例（项目根目录执行，示例会在该项目新增 `daemon-output/`）：
+- 从工作目录逐级向上找最近的项目 `AGENTS.md`。全局依次使用应用数据目录、用户主目录或随包模板；按全局→项目注入，合计上限12000字节，单份最多300行。源码根规则提供地图、构建测试、代码风格与项目坑。
+- 动作前代码拦截 `.env`/私钥写入、递归强删、`git push --force`/`-f`/强制引用、`git reset --hard`，拒绝包含原因与替代方案。危险命令验收直接检查 pre-tool 策略，绝不进入真实命令执行。
+- 每次 write/edit 后检查相关测试；Python 先检查语法，再跑相邻 `test_<文件>.py` 或项目 tests。只把“用例/期望/实际”三行回注模型，不塞完整 traceback。缺少用例会明确跳过，不当成通过。测试使用独立缓存位置，避免同一秒、相同长度的修复被旧 pyc 遮盖。
+- reviewer 独立上下文，只有 read 和受限 git diff。命令以参数列表执行，拒绝管道、分号、外部 diff、输出文件和越界路径。固定检查改动范围、依赖、吞异常、新分支测试、print/TODO 五项；只回最终消息，主上下文增量至多500个BPE token。
+- `custom_report.json` 必须记录至少一次真实 Runtime 的红转绿；当前验收重复两次。受控 Provider 提出修改、读取真实测试反馈后修复；文件编辑、测试进程和 Git 差异都实际执行，不冒充真实模型质量评测。
 
-```powershell
-.venv\Scripts\python.exe app.py daemon create --plan examples\daemon-plan.json
-# 将上一步输出的 id 代入：
-.venv\Scripts\python.exe app.py daemon run 任务ID
-# 或保持前台轮询，Ctrl+C 停止；再次启动可继续：
-.venv\Scripts\python.exe app.py daemon watch --interval 5
-.venv\Scripts\python.exe app.py daemon list
-```
+### C：到点技能、崩溃恢复、系统完成通知
 
-### 能力开关与回退
+已实现三项，超过四选二最低要求：
 
-桌面开关会保存到本机设置；同名环境变量优先：`ENABLE_SKILLS`、`ENABLE_CUSTOM`、`ENABLE_HOOKS`、`ENABLE_AUTOTEST`、`ENABLE_REVIEWER`、`ENABLE_DAEMON`。值为 `0`/`false`/`off` 时关闭。关闭 CUSTOM 同时关闭其 hooks、自动测试和 reviewer。
+1. `routines.yaml` 支持带时区的单次 `at` 或 `every_seconds` 周期，20条以内。时间未到不执行，到点运行指定技能；持久化认领和队列锁阻止同一时间槽重复触发。
+2. 后台任务每一步原子落盘，内核锁保护执行。硬中断后从未完成的第4步继续，核对内容 SHA256 和修改时间，前面步骤不重写；外部修改会报告冲突并停止。
+3. 完成后请求 Windows 系统托盘通知，并在应用内保留去重提示。报告 `notify_fired` 表示实际系统接口接受请求，是否弹出受 Windows 专注模式等设置控制；失败会记录原因，不冒报成功。
 
-`$env:ENABLE_SKILLS='0'` 仅关闭技能发现与加载；`$env:CODEDESK_LEGACY='1'` 一次关闭全部三个补丁，回到本项目补丁前的四工具运行流程。既有多模型、浅深主题、编辑器和 MCP 客户端保持。关闭后重新打开应用；恢复时删除环境变量或改成 `1`（LEGACY 改 `0`）。
+定时配置默认 `enabled: false`，不会未经启用就消耗模型额度。将根目录示例复制到自己的项目、启用并设置时间；在桌面设置保存模型与功能开关后，点击“启动定时技能”。点击停止或关闭窗口会停止这个窗口的定时器。
 
-### 自动验收：数字由 app.inspect 产生
+独立常驻进程可在项目根执行：
 
 ```powershell
-.venv\Scripts\python.exe app.py inspect --output reports
+python -m app daemon watch --routines routines.yaml --interval 5
+# 另一个窗口查看任务；Ctrl+C停止，后台步骤检查点保留
+python -m app daemon list
+python -m app daemon create --plan examples/daemon-plan.json
+python -m app daemon run 任务ID
 ```
 
-命令打印 JSON（中文以标准 Unicode 转义输出，兼容英文 Windows 控制台；解析后文字不变），返回非零状态表示有项未通过，并生成：
+独立进程的模型 Key 可读取已由桌面保存的 Windows 凭据。只保存在桌面窗口内存的 Key 不会跨进程复制。定时任务按时间槽先认领再执行；遇到故障会保留状态，**不自动重放任意外部副作用**。文件步骤的幂等保证不等于所有网络操作恰好执行一次。未实现文件监听触发，本作业选做采用以上三项。
 
-安装/便携版不需要开发环境：在 CodeDesk 运行目录执行 `runtime\python.exe app\app.py inspect --output reports`。其他 CLI 命令也可用这组解释器与入口替换 `.venv\Scripts\python.exe app.py`。
+### 开关与基线回归
 
-- [skill_report.json](reports/skill_report.json)：目录大小、全文大小、披露比例、6 条触发用例和误触发。
-- [custom_report.json](reports/custom_report.json)：两层 AGENTS.md、真实拦截与替代方案、实际自动测试、只读 reviewer 和主上下文增量。
-- [daemon_report.json](reports/daemon_report.json)：实际启动独立进程，前三步完成后**强制终止**，重启从第 4 步继续，核对未重复写入及通知数量。
-- [mcp_report.json](reports/mcp_report.json)：实际启动 HTTP MCP 服务，核对未认证 401、非法来源 403、SDK 工具发现和真实调用。
+桌面设置可分别关闭，环境变量优先：`ENABLE_SKILLS`、`ENABLE_CUSTOM`、`ENABLE_HOOKS`、`ENABLE_AUTOTEST`、`ENABLE_REVIEWER`、`ENABLE_DAEMON`、`ENABLE_SCHEDULER`、`ENABLE_RESUME`、`ENABLE_NOTIFICATIONS`。值为0/false/off关闭；关闭 CUSTOM 也关闭其三个子能力，关闭 DAEMON 也关闭定时、恢复和系统通知。
 
-为避免占用已有服务，HTTP 验收选一个临时空闲端口；`tested_port` 是实际测试值，`default_port` 仍是产品默认的 8001。
+`CODEDESK_LEGACY=1` 一次关闭所有增量，保留四工具、原界面和 MCP。老师现场可对同一代码设置 `ENABLE_SKILLS=0`/1 跑同一任务；不是拿两个版本截图比较。`python -m app.selftest` 会在关闭增量的条件下实际检查四工具、分页、精确替换、图片与界面资源。
 
-默认验收的模型审查部分使用明确标注的受控 Provider，文件工具、测试命令、进程终止恢复及 HTTP MCP 都实际执行；这些结果不冒充真实模型质量评测。生产 reviewer 使用桌面配置的模型 API。报告 token 是公开说明的保守计量，不是手写分数。请开启相关补丁后验收；关闭功能时不能伪报它通过。
+### 三条指定验收命令
 
-[新增开关与端口界面](docs/screenshots/05-patches-120.png) · [12 秒实际交互关键画面演示](docs/patches-demo.mp4)（非连续录屏）。
+激活源码虚拟环境后执行，或将 `python` 换成 `.venv\Scripts\python.exe`：
+
+```powershell
+python -m app.inspect skills --out skill_report.json
+python -m app.inspect custom --out custom_report.json
+python -m app.inspect daemon --out daemon_report.json
+```
+
+三条均不依赖界面，向标准输出打印 JSON 并写入 `--out` 文件，失败返回非零。仓库提交的生成文件在 [reports/](reports/)。`python app.py inspect --output reports` 保留兼容入口，还会验收 HTTP MCP 认证与真实调用。分发包中在 CodeDesk 目录执行 `runtime\python.exe -m app.inspect skills --out skill_report.json`，无需安装开发 Python。
+
+验收明确使用稳定受控模型，**真实执行工具、脚本、测试、进程中断恢复和 MCP**；真实模型仍通过桌面填写的 API 调用。报告不声称测试过未授权的飞书账号，不手写验收数字。
+
+阶段标签为 `v1.0`（指向保留的工作台基线）、`v1.1`（技能，其他增量默认关闭）、`v1.2`（定制，常驻默认关闭）、`v1.3`（完整选做与最终材料）。它们是课程阶段标签；原有 `v1.0.0`、`v1.1.0`、`v1.2.0` 发布记录保持不动。安装包使用新版本 **v1.3.0**，不覆盖历史发布。
 
 ## MCP 协议、端口与连接配置
 

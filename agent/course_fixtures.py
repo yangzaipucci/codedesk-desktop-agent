@@ -78,3 +78,18 @@ class ReviewProvider:
             issues.append('stats.py：新增 except: pass 静默吞掉错误。')
         summary='已检查：改动范围、依赖、异常吞噬、新分支测试覆盖、调试残留。\n'+ ('\n'.join(issues) if issues else '当前差异未发现上述可证实的问题；覆盖率仍需结合测试运行记录。')
         return {'role':'assistant','content':summary}, {}
+
+
+class ScheduledTestProvider:
+    """Scheduled skill fixture; failure decisions use the real process result."""
+    def __init__(self):self.turn=0
+
+    async def complete(self,messages,definitions,emit):
+        self.turn+=1
+        if self.turn==1:
+            return call('read',{'path':'skill://run-tests/SKILL.md'},'scheduled-skill'),{}
+        if self.turn==2:
+            return call('bash',{'command':'python -B -m unittest discover -p test_stats.py -q','timeout':20},'scheduled-tests'),{}
+        result=json.loads(messages[-1]['content'])
+        if not result.get('ok'):raise ValueError('定时任务实际测试失败。')
+        return {'role':'assistant','content':'定时触发后已加载 run-tests，并实际运行项目测试通过。'},{}

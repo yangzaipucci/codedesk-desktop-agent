@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "checks": {
+    "atomic_write_creates_parents": true,
+    "read_pagination": true,
+    "unique_edit": true,
+    "ambiguous_edit_denied": true,
+    "image_multimodal": true,
+    "bash_real_subprocess": true,
+    "exact_four_builtins": true,
+    "ui_packaged": true
+  },
+  "test_tier": "actual tools with optional increments disabled"
+}

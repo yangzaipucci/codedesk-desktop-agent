@@ -96,7 +96,7 @@ def prepare_repair(work):
     source=Path(__file__).resolve().parents[1]/'sample_workspace'
     for name in ('stats.py','test_stats.py'):
         shutil.copy2(source/name,work/name)
-    (work/'AGENTS.md').write_text('# 项目地图\nstats.py：统计函数。test_stats.py：测试。\n# 构建与测试\npython -m unittest discover -q\n# 代码风格\n空输入分支必须验证，不吞异常。\n# 坑\nWindows 命令使用 PowerShell。\n',encoding='utf-8')
+    shutil.copy2(assets()/'project-AGENTS.md',work/'AGENTS.md')
     subprocess.run(['git','init','-q'],cwd=work,check=True,capture_output=True)
     subprocess.run(['git','add','stats.py','test_stats.py','AGENTS.md'],cwd=work,check=True,capture_output=True)
 
@@ -110,7 +110,7 @@ async def custom_report(root):
     from agent.tokens import count_tokens
     work,state=setup(root)
     prepare_repair(work)
-    (state.directory/'AGENTS.md').write_text('全局规则：仅修改请求范围；密钥在桌面设置；按真实工具结果汇报。\n',encoding='utf-8')
+    shutil.copy2(assets()/'AGENTS.md',state.directory/'AGENTS.md')
     nested=work/'nested';nested.mkdir()
     guidance,sources=project_guidance(nested,state.directory)
     rule_report={'found':{s['layer'] for s in sources}=={'global','project'},'bytes':sum(s['bytes'] for s in sources),'layers':[s['layer'] for s in sources],'injected_bytes':len(guidance.encode('utf-8')),'parent_search':any(s['layer']=='project' for s in sources),'truncated':any(s['truncated'] for s in sources)}
@@ -141,4 +141,55 @@ async def custom_report(root):
     review=await Reviewer(state,ReviewProvider()).review('审查 mean 空输入修复，检查五项清单。',['stats.py'],tools)
     report={'agents_md':rule_report,'denied':denied,'autotest':{'runs':len(tests),'red':red,'green':green,'red_to_green':red_to_green,'injected_lines':max((t.get('injected_lines',0) for t in tests),default=0),'transitions':runs,'observations':tests},'reviewer':{'runs':1,'issues_found':int('新增差异包含' in review.get('summary','')),'main_context_delta':review.get('main_context_delta',0),'subagent_tokens':review.get('subagent_tokens',0),'context_isolated':review.get('context_isolated',False),'denied_writes':review.get('denied_writes',0),'diff_calls':review.get('diff_calls',0),'checklist':review.get('checklist',[]),'summary':review.get('summary','')},'test_tier':'controlled_provider; real Runtime, file edits, unittest subprocess and git diff; not live model quality','token_measure':TOKEN_MEASURE}
     report['passed']=rule_report['found'] and rule_report['parent_search'] and rule_report['bytes']<=12000 and not rule_report['truncated'] and all(d['denied'] and d['reason'] and '替代方案' in d['reason'] for d in denied) and red_to_green>=1 and green>=1 and report['autotest']['injected_lines']<=3 and review.get('status')=='completed' and review.get('diff_calls',0)>=1 and report['reviewer']['issues_found']>=1 and review.get('denied_writes',0)>=1 and not (work/'review-probe.txt').exists() and 0<report['reviewer']['main_context_delta']<=500
+    return report
+
+
+async def daemon_report(root):
+    from datetime import datetime,timezone,timedelta
+    import sys,time
+    from agent.daemon import Daemon
+    from agent.inspection import child_command,child_environment
+    from agent.scheduler import Scheduler
+    from agent.course_fixtures import ScheduledTestProvider
+    work,state=setup(root)
+    worker=Daemon(state)
+    job=worker.create({'name':'CodeDesk 增量验收：断点恢复','steps':[{'kind':'write','path':f'out/step-{i}.txt','content':f'step {i}\n'} for i in range(1,5)]})
+    options={'creationflags':subprocess.CREATE_NO_WINDOW} if os.name=='nt' else {}
+    process=subprocess.Popen(child_command()+['daemon','--state-dir',str(state.directory),'run',job['id'],'--step-delay','1'],env=child_environment(),stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,**options)
+    try:
+        deadline=time.monotonic()+25
+        while True:
+            checkpoint=worker.get(job['id'])
+            completed=[s for s in checkpoint['steps'] if s['status']=='completed']
+            if len(completed)==3:break
+            if process.poll() is not None or time.monotonic()>deadline:raise RuntimeError('无法在第3步后捕获断点，拒绝伪报恢复成功。')
+            await asyncio.sleep(.05)
+        before={p.name:(p.read_bytes().hex(),p.stat().st_mtime_ns) for p in (work/'out').glob('*.txt')}
+        process.kill();process.wait(timeout=8)
+        resume_from_step=next(s['number'] for s in checkpoint['steps'] if s['status']!='completed')
+        recovered=await worker.run(job['id'])
+        after={p.name:(p.read_bytes().hex(),p.stat().st_mtime_ns) for p in (work/'out').glob('*.txt') if p.name in before}
+        await worker.run(job['id'])
+        notices=worker.summaries()['notifications']
+    finally:
+        if process.poll() is None:process.kill();process.wait(timeout=8)
+    prepare_repair(work)
+    path=work/'stats.py'
+    path.write_text(path.read_text(encoding='utf-8').replace('    return sum(nums) / len(nums)','    return sum(nums) / len(nums) if nums else 0'),encoding='utf-8')
+    at=(datetime.now(timezone.utc)+timedelta(seconds=1)).isoformat()
+    import yaml
+    plan={'routines':[{'id':f'focused-test-{i}','skill':'run-tests','at':at,'prompt':'跑测试，只验证 test_stats.py，不修改代码。'} for i in range(1,4)]}
+    routines=work/'routines.yaml';routines.write_text(yaml.safe_dump(plan,allow_unicode=True),encoding='utf-8')
+    scheduler=Scheduler(state,provider_factory=lambda item:ScheduledTestProvider())
+    early=await scheduler.tick(routines)
+    await asyncio.sleep(1.1)
+    # The crash-recovery task above exercises the actual OS notification once;
+    # scheduled test tasks need not generate three redundant balloons.
+    with overrides(ENABLE_NOTIFICATIONS=0):
+        fired=await scheduler.tick(routines)
+    again=await scheduler.tick(routines)
+    native=notices[0].get('system_notification',{}) if notices else {}
+    report={'triggers_fired':fired['triggers_fired'],'resume_from_step':resume_from_step,'notify_fired':native.get('accepted',False),'idempotent':before==after and all(s['attempts']==1 for s in recovered['steps']) and again['triggers_fired']==0 and len(notices)==1,'resume_step':resume_from_step,'steps_total':len(recovered['steps']),'hard_kill':True,'completed_before_kill':3,'completed':recovered['status']=='completed','notification_count':len(notices),'system_notification':native,'schedule':{'before_due':early['triggers_fired'],'after_due':fired,'repeat_tick':again['triggers_fired'],'test_tier':'controlled model; actual skill loading, unittest processes and durable queue'},'capabilities':['crash_resume','scheduled_skill','system_completion_notification'],'token_measure':TOKEN_MEASURE}
+    report['passed']=resume_from_step==4 and report['completed'] and report['idempotent'] and early['triggers_fired']==0 and fired['triggers_fired']==3 and all(r['status']=='completed' and r['skill_loaded'] and r['tool_calls']>=2 for r in fired['runs'])
+    report['qualified_capabilities']=['crash_resume','scheduled_skill']+(['system_completion_notification'] if report['notify_fired'] else [])
     return report

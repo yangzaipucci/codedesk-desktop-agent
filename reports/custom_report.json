@@ -1,12 +1,12 @@
 {
   "agents_md": {
     "found": true,
-    "bytes": 321,
+    "bytes": 2033,
     "layers": [
       "global",
       "project"
     ],
-    "injected_bytes": 351,
+    "injected_bytes": 2037,
     "parent_search": true,
     "truncated": false
   },

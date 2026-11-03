@@ -1,15 +1,70 @@
 {
+  "triggers_fired": 3,
+  "resume_from_step": 4,
+  "notify_fired": true,
+  "idempotent": true,
   "resume_step": 4,
   "steps_total": 4,
-  "completed_before_kill": 3,
   "hard_kill": true,
-  "idempotent": true,
-  "notification_count": 1,
+  "completed_before_kill": 3,
   "completed": true,
+  "notification_count": 1,
+  "system_notification": {
+    "accepted": true,
+    "backend": "Windows Shell_NotifyIcon",
+    "visibility": "controlled by Windows notification/focus settings"
+  },
+  "schedule": {
+    "before_due": 0,
+    "after_due": {
+      "triggers_fired": 3,
+      "runs": [
+        {
+          "id": "299716b873d29c16d9b94f69728edbc040ceb4a9d9cd0b991a2ff8c740574b87",
+          "routine": "focused-test-1",
+          "skill": "run-tests",
+          "status": "completed",
+          "slot": "1793718953.091388",
+          "started_at": "2026-11-03T15:15:53.381513+00:00",
+          "tool_calls": 2,
+          "skill_loaded": true
+        },
+        {
+          "id": "00cc18cccc394f9c671eb9d1e2c281c5402319b8b9ec3d3b5e8e5c1a2d3898ae",
+          "routine": "focused-test-2",
+          "skill": "run-tests",
+          "status": "completed",
+          "slot": "1793718953.091388",
+          "started_at": "2026-11-03T15:15:55.107304+00:00",
+          "tool_calls": 2,
+          "skill_loaded": true
+        },
+        {
+          "id": "f0f383da20600c78b5481de3097dfb3ee3f49d813d5b42d39373f45e100eb97e",
+          "routine": "focused-test-3",
+          "skill": "run-tests",
+          "status": "completed",
+          "slot": "1793718953.091388",
+          "started_at": "2026-11-03T15:15:56.789617+00:00",
+          "tool_calls": 2,
+          "skill_loaded": true
+        }
+      ],
+      "status": "completed"
+    },
+    "repeat_tick": 0,
+    "test_tier": "controlled model; actual skill loading, unittest processes and durable queue"
+  },
   "capabilities": [
     "crash_resume",
-    "timer_poll",
-    "completion_notification"
+    "scheduled_skill",
+    "system_completion_notification"
   ],
-  "passed": true
+  "token_measure": "tiktoken cl100k_base BPE; offline ranks; provider billing may differ",
+  "passed": true,
+  "qualified_capabilities": [
+    "crash_resume",
+    "scheduled_skill",
+    "system_completion_notification"
+  ]
 }

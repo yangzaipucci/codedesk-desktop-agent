@@ -4,7 +4,7 @@ import DOMPurify from 'dompurify';
 import {createCodeEditor} from './editor.js';
 import {filterPaths,expandCommand,cleanTheme,compactEvents,workspacePath,isImage,languageLabel,fileGlyph} from './utils.js';
 
-installPatchSettings();
+installPatchSettings(api,toast);
 const $=id=>document.getElementById(id), token=document.querySelector('meta[name="session-token"]').content;
 const nonce=document.querySelector('meta[name="style-nonce"]').content;
 let config=null,running=false,terminalRunning=false,socket=null,active=null,assistant=null,panel='files',pickerMode='files',newKind='file',paths=[],selectionContext=null,theme='light',mode='agent',queueBusy=false,selectedTask=null,taskCursor=0,taskTimer=null,lastAnswer='';

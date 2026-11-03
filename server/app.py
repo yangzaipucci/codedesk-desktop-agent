@@ -19,7 +19,7 @@ from agent.tools import Tools
 from agent.workspace import Workspace, attach_context
 from agent.tasks import TaskQueue
 from agent.modes import validate_mode
-from agent.capabilities import FEATURES, enabled
+from agent.capabilities import FEATURES, enabled, atomic_json
 from agent.skills import Skills
 from agent.daemon import Daemon
 
@@ -37,12 +37,14 @@ def create_app(settings=None, token=None, runtime=None):
     app.state.token, app.state.settings, app.state.runtime = token, settings, runtime
     app.state.terminal = None
     app.state.daemon_task = None
+    app.state.scheduler_task = None
+    app.state.scheduler_busy = False
     app.state.jobs = TaskQueue(settings)
     style_nonce = secrets.token_urlsafe(24)
 
     async def shutdown():
         await app.state.jobs.close()
-        for task in (app.state.terminal,runtime.active,app.state.daemon_task):
+        for task in (app.state.terminal,runtime.active,app.state.daemon_task,app.state.scheduler_task):
             if task and not task.done():
                 task.cancel()
                 await asyncio.gather(task,return_exceptions=True)
@@ -63,6 +65,8 @@ def create_app(settings=None, token=None, runtime=None):
         return response
 
     def idle():
+        if app.state.scheduler_busy:
+            raise HTTPException(409, '定时技能正在执行，请等待或停止定时任务。')
         if app.state.daemon_task and not app.state.daemon_task.done():
             raise HTTPException(409, '后台任务正在执行，请等待或停止。')
         if runtime.active and not runtime.active.done():
@@ -81,7 +85,38 @@ def create_app(settings=None, token=None, runtime=None):
     async def daemon_jobs():
         if not enabled('daemon',settings.directory):
             return {'enabled':False,'jobs':[],'notifications':[]}
-        return Daemon(settings).summaries()
+        return {**Daemon(settings).summaries(),'scheduler_running':app.state.scheduler_task is not None and not app.state.scheduler_task.done()}
+
+    @app.post('/api/daemon/scheduler/start')
+    async def start_scheduler():
+        idle()
+        if not enabled('scheduler',settings.directory):
+            raise ValueError('定时技能已关闭，请在设置中启用。')
+        from agent.scheduler import Scheduler
+        path=Path(settings.value['workspace'])/'routines.yaml'
+        Scheduler(settings).load(path)
+        if app.state.scheduler_task and not app.state.scheduler_task.done():
+            return {'status':'running'}
+        async def loop():
+            while True:
+                if (runtime.active is None or runtime.active.done()) and not app.state.jobs.busy and (app.state.terminal is None or app.state.terminal.done()) and (app.state.daemon_task is None or app.state.daemon_task.done()):
+                    app.state.scheduler_busy=True
+                    try:
+                        await Scheduler(settings).tick(path)
+                    except (ValueError,OSError) as error:
+                        atomic_json(settings.directory/'scheduler/last-error.json',{'error':str(error)[:300]})
+                    finally:
+                        app.state.scheduler_busy=False
+                await asyncio.sleep(5)
+        app.state.scheduler_task=asyncio.create_task(loop())
+        return {'status':'started','config':'routines.yaml'}
+
+    @app.post('/api/daemon/scheduler/stop')
+    async def stop_scheduler():
+        if app.state.scheduler_task and not app.state.scheduler_task.done():
+            app.state.scheduler_task.cancel()
+            await asyncio.gather(app.state.scheduler_task,return_exceptions=True)
+        return {'status':'stopped'}
 
     @app.post('/api/daemon/create')
     async def create_daemon(request: Request):
