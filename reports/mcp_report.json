@@ -1,6 +1,6 @@
 {
   "default_port": 8001,
-  "tested_port": 56418,
+  "tested_port": 56534,
   "endpoint": "/mcp",
   "transport": "streamable-http",
   "unauthenticated_status": 401,

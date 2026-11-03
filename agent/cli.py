@@ -32,6 +32,11 @@ def main(argv=None):
             result=asyncio.run(inspect_patches(args.output,not args.skip_http))
         except (ValueError,OSError,RuntimeError) as error:
             result={'passed':False,'error':str(error)[:500]}
+            for name in ('skill_report','custom_report','daemon_report','mcp_report'):
+                path=args.output/(name+'.json')
+                if path.is_file():
+                    try:result[name]=json.loads(path.read_text(encoding='utf-8'))
+                    except (ValueError,OSError):pass
         # ASCII escapes keep valid JSON on redirected legacy Windows consoles.
         print(json.dumps(result,ensure_ascii=True,indent=2))
         if not result['passed']:raise SystemExit(1)

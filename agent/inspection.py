@@ -83,11 +83,13 @@ async def inspect_patches(output, include_http=True):
         review = await Reviewer(settings,ReviewFixture()).review('Review twice.', ['maths.py'],tools)
         custom, sources = project_guidance(work, settings.directory)
         summary = truncate('[CodeDesk review]'+review.get('summary',''),500-token_bound(custom))
-        custom_report = {'agents_md':sources,'denied':denied,'autotest':{k:v for k,v in autotest.items() if k in {'status','syntax_ok','test','exit_code'}},'reviewer':{k:v for k,v in review.items() if k in {'status','allowed_tools','denied_writes','reads','context_isolated'}},'reviewer_test_tier':'controlled_provider_with_real_file_tools','parent_context_tokens':token_bound(custom+summary),'token_measure':'UTF-8 byte upper bound; not billing'}
+        custom_report = {'agents_md':sources,'denied':denied,'autotest':{k:v for k,v in autotest.items() if k in {'status','syntax_ok','test','exit_code','timed_out'}},'reviewer':{k:v for k,v in review.items() if k in {'status','allowed_tools','denied_writes','reads','context_isolated'}},'reviewer_test_tier':'controlled_provider_with_real_file_tools','parent_context_tokens':token_bound(custom+summary),'token_measure':'UTF-8 byte upper bound; not billing'}
         if autotest['status'] != 'passed':
             # Only our generated acceptance fixture is run here, never user code.
             custom_report['autotest']['diagnostic'] = {k:str(autotest[k])[:2000] for k in ('stdout','stderr','reason','error') if k in autotest}
         custom_report['passed'] = len(sources)==2 and all(d['denied'] and d['has_alternative'] for d in denied) and autotest['status']=='passed' and review.get('denied_writes')==1 and not (work/'review-probe.txt').exists() and custom_report['parent_context_tokens']<=500
+        atomic_json(output/'skill_report.json',skill)
+        atomic_json(output/'custom_report.json',custom_report)
 
         daemon = Daemon(settings)
         job = daemon.create({'name':'acceptance checkpoint job','steps':[{'kind':'write','path':f'out/step-{i}.txt','content':f'step {i}\n'} for i in range(1,5)]})

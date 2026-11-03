@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 import uuid
 
-from agent.capabilities import atomic_json, enabled
+from agent.capabilities import atomic_json, enabled, read_json
 from agent.runtime import Runtime
 from agent.tools import Tools
 
@@ -94,16 +94,16 @@ class Daemon:
         return job
 
     def get(self, identity):
-        return json.loads(self.path(identity).read_text(encoding='utf-8'))
+        return read_json(self.path(identity))
 
     def summaries(self):
         records = []
         for path in sorted(self.directory.glob('*.json'), key=lambda p:p.stat().st_mtime, reverse=True)[:100]:
-            value = json.loads(path.read_text(encoding='utf-8'))
+            value = read_json(path)
             records.append({k:value[k] for k in ('id','name','workspace','status') } | {'completed': sum(s['status']=='completed' for s in value['steps']), 'total': len(value['steps'])})
         notices = []
         for path in sorted((self.directory / 'notifications').glob('*.json'), key=lambda p:p.stat().st_mtime, reverse=True)[:50]:
-            notices.append(json.loads(path.read_text(encoding='utf-8')))
+            notices.append(read_json(path))
         return {'enabled': enabled('daemon', self.settings.directory), 'jobs': records, 'notifications': notices}
 
     async def run(self, identity, step_delay=0):

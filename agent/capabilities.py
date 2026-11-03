@@ -2,6 +2,7 @@
 import json
 import os
 from pathlib import Path
+import time
 
 FEATURES = ('skills', 'custom', 'hooks', 'autotest', 'reviewer', 'daemon')
 
@@ -35,6 +36,21 @@ def truncate(text, budget):
     return text.encode('utf-8')[:max(0, budget)].decode('utf-8', errors='ignore')
 
 
+def file_retry(operation):
+    """Bounded retry for transient Windows sharing/antivirus file locks."""
+    for attempt in range(10):
+        try:
+            return operation()
+        except PermissionError:
+            if os.name != 'nt' or attempt == 9:
+                raise
+            time.sleep(.02 * (attempt + 1))
+
+
+def read_json(path):
+    return json.loads(file_retry(lambda: Path(path).read_text(encoding='utf-8')))
+
+
 def atomic_json(path, value):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -43,7 +59,7 @@ def atomic_json(path, value):
         json.dump(value, stream, ensure_ascii=False, indent=2)
         stream.flush()
         os.fsync(stream.fileno())
-    temporary.replace(path)
+    file_retry(lambda: temporary.replace(path))
 
 
 def project_guidance(workspace, directory, budget=350):

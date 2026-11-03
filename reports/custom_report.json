@@ -31,7 +31,8 @@
     "status": "passed",
     "syntax_ok": true,
     "test": "test_maths.py",
-    "exit_code": 0
+    "exit_code": 0,
+    "timed_out": false
   },
   "reviewer": {
     "status": "completed",
