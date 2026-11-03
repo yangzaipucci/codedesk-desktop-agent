@@ -54,3 +54,27 @@ class DiffProvider:
                 name,args = sequence[self.turn-1]
                 return call(name,args,'baseline-'+str(self.turn)), {}
         return {'role': 'assistant', 'content': '已获取实际 Git 差异及统计。此受控试验比较工具调用次数，不代表真实模型效果提升。'}, {}
+
+
+class ReviewProvider:
+    """Read actual diff/source; check the fixed list in isolated model messages."""
+    def __init__(self):
+        self.turn = 0
+
+    async def complete(self, messages, definitions, emit):
+        self.turn += 1
+        if self.turn == 1:
+            return call('write', {'path':'review-probe.txt','content':'must be denied'}, 'denied-write'), {}
+        if self.turn == 2:
+            return call('bash', {'command':'git diff --no-ext-diff --no-textconv --unified=3'}, 'review-diff'), {}
+        if self.turn == 3:
+            return call('read', {'path':'stats.py'}, 'review-source'), {}
+        observations = [json.loads(m['content']) for m in messages if m.get('role')=='tool']
+        added = '\n'.join(line[1:] for item in observations for line in item.get('stdout','').splitlines() if line.startswith('+') and not line.startswith('+++'))
+        issues=[]
+        if 'print(' in added or 'TODO' in added:
+            issues.append('stats.py：新增差异包含 print/TODO 调试残留，应移除或完成。')
+        if 'except: pass' in added:
+            issues.append('stats.py：新增 except: pass 静默吞掉错误。')
+        summary='已检查：改动范围、依赖、异常吞噬、新分支测试覆盖、调试残留。\n'+ ('\n'.join(issues) if issues else '当前差异未发现上述可证实的问题；覆盖率仍需结合测试运行记录。')
+        return {'role':'assistant','content':summary}, {}

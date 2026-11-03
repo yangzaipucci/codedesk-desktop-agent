@@ -18,6 +18,7 @@ from agent.tools import DEFINITIONS, Tools, model_result
 from agent.capabilities import atomic_json, project_guidance, token_bound, truncate
 from agent.skills import Skills
 from agent.reviewer import Reviewer
+from agent.tokens import count_tokens, limit_tokens
 
 SYSTEM = """你是 CodeDesk 桌面智能体，用中文沟通，支持普通问答、资料检索和代码任务。普通知识问题直接回答；实时事实与文献引用使用真实工具核对，不把所有问题当成本地文件任务。本地代码任务先理解工作目录，再进行必要的最小修改；实时信息查询不必读取项目文件。
 你只有 read、write、edit、bash 四个内置工具，此外可能有标有来源的 MCP 工具。
@@ -114,7 +115,8 @@ class Runtime:
         # Rebuild transient instructions, never accumulate old reviewer summaries.
         self.messages = [m for m in self.messages if not (m.get('role') == 'user' and isinstance(m.get('content'), str) and m['content'].startswith('[CodeDesk review]'))]
         custom, sources = project_guidance(workspace, self.settings.directory)
-        self.custom_context_tokens = token_bound(custom)
+        self.custom_context_tokens = count_tokens(custom)
+        self.reviewer_context_tokens = 0
         skills = Skills(workspace, self.settings.directory)
         matches = skills.select(prompt)
         skill_text = skills.catalog()
@@ -231,8 +233,9 @@ class Runtime:
                 atomic_json(self.settings.directory / 'reviews' / (self.session_id + '.json'), json.loads(self.settings.redact(json.dumps(review, ensure_ascii=False))))
                 used += review.get('tokens',0)
                 if review.get('summary'):
-                    extra = truncate('[CodeDesk review]' + review['summary'], 500 - self.custom_context_tokens)
-                    self.custom_context_tokens += token_bound(extra)
+                    extra = limit_tokens('[CodeDesk review]' + review['summary'], 500)
+                    self.reviewer_context_tokens = count_tokens(extra)
+                    self.custom_context_tokens += self.reviewer_context_tokens
                     self.messages.append({'role': 'user', 'content': extra})
                 await emit({'type': 'status', 'text': '只读审查：' + review.get('summary', review.get('reason', review['status']))[:220]})
             await emit({"type": "done", "status": status, "tokens": used})

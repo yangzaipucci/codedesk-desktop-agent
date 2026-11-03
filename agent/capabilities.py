@@ -5,7 +5,7 @@ from pathlib import Path
 import time
 
 FEATURES = ('skills', 'custom', 'hooks', 'autotest', 'reviewer', 'daemon')
-DEFAULT_PROFILE = 'skills'
+DEFAULT_PROFILE = 'custom'
 
 
 def default_enabled(name):
@@ -67,23 +67,24 @@ def atomic_json(path, value):
     file_retry(lambda: temporary.replace(path))
 
 
-def project_guidance(workspace, directory, budget=350):
+def project_guidance(workspace, directory, budget=12000):
     if not enabled('custom', directory):
         return '', []
     global_file = Path(directory) / 'AGENTS.md'
     if not global_file.is_file():
+        global_file = Path.home() / 'AGENTS.md'
+    if not global_file.is_file():
         global_file = assets() / 'AGENTS.md'
     text, sources = '', []
-    project_file = Path(workspace) / 'AGENTS.md'
+    current = Path(workspace).resolve()
+    project_file = next((parent / 'AGENTS.md' for parent in (current,*current.parents) if (parent/'AGENTS.md').is_file()), current/'AGENTS.md')
     for label, path in [('global', global_file), ('project', project_file)]:
         if not path.is_file() or path.is_symlink() or path.stat().st_size > 32768:
             continue
-        body = path.read_text(encoding='utf-8-sig')
+        body = '\n'.join(path.read_text(encoding='utf-8-sig').splitlines()[:300])
         prefix = f'\n[{label} AGENTS.md]\n'
         available = max(0, budget - token_bound(text))
-        if label=='global' and project_file.is_file():
-            available = min(120, available)
         piece = truncate(prefix + body, available)
         text += piece
-        sources.append({'layer': label, 'loaded': True, 'line_count':len(body.splitlines()), 'injected_bytes':token_bound(piece), 'truncated': piece != prefix + body})
+        sources.append({'layer': label, 'loaded': True, 'line_count':len(body.splitlines()), 'bytes':path.stat().st_size, 'injected_bytes':token_bound(piece), 'truncated': piece != prefix + body, 'filename':str(path)})
     return text, sources

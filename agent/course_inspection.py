@@ -90,3 +90,55 @@ async def inspect_section(section,out):
         else:report=await daemon_report(root)
     atomic_json(out,report)
     return report
+
+
+def prepare_repair(work):
+    source=Path(__file__).resolve().parents[1]/'sample_workspace'
+    for name in ('stats.py','test_stats.py'):
+        shutil.copy2(source/name,work/name)
+    (work/'AGENTS.md').write_text('# 项目地图\nstats.py：统计函数。test_stats.py：测试。\n# 构建与测试\npython -m unittest discover -q\n# 代码风格\n空输入分支必须验证，不吞异常。\n# 坑\nWindows 命令使用 PowerShell。\n',encoding='utf-8')
+    subprocess.run(['git','init','-q'],cwd=work,check=True,capture_output=True)
+    subprocess.run(['git','add','stats.py','test_stats.py','AGENTS.md'],cwd=work,check=True,capture_output=True)
+
+
+async def custom_report(root):
+    from agent.capabilities import project_guidance
+    from agent.course_fixtures import RepairProvider,ReviewProvider
+    from agent.reviewer import Reviewer
+    from agent.runtime import Runtime
+    from agent.tools import Tools
+    from agent.tokens import count_tokens
+    work,state=setup(root)
+    prepare_repair(work)
+    (state.directory/'AGENTS.md').write_text('全局规则：仅修改请求范围；密钥在桌面设置；按真实工具结果汇报。\n',encoding='utf-8')
+    nested=work/'nested';nested.mkdir()
+    guidance,sources=project_guidance(nested,state.directory)
+    rule_report={'found':{s['layer'] for s in sources}=={'global','project'},'bytes':sum(s['bytes'] for s in sources),'layers':[s['layer'] for s in sources],'injected_bytes':len(guidance.encode('utf-8')),'parent_search':any(s['layer']=='project' for s in sources),'truncated':any(s['truncated'] for s in sources)}
+    tools=Tools(work,state.directory)
+    denied=[]
+    for name,args in [('write',{'path':'.env','content':'PLACEHOLDER'}),('write',{'path':'secret.pem','content':'PLACEHOLDER'}),('bash',{'command':'rm -rf build/'}),('bash',{'command':'git push --force'}),('bash',{'command':'git reset --hard'})]:
+        # Test the pre-tool policy only; rejected commands are never executed.
+        from agent.hooks import PolicyDenied
+        try:
+            tools.hooks.before(name,args)
+            denied.append({'tool':name,**{k:v for k,v in args.items() if k!='content'},'reason':'','denied':False})
+        except PolicyDenied as error:
+            denied.append({'tool':name,**{k:v for k,v in args.items() if k!='content'},'reason':str(error),'denied':True})
+    tests=[];runs=[]
+    for index in range(2):
+        # Restore an independent scenario; only the controlled agent applies fixes.
+        shutil.copy2(Path(__file__).resolve().parents[1]/'sample_workspace/stats.py',work/'stats.py')
+        provider=RepairProvider();runtime=Runtime(state,provider)
+        events=[]
+        async def sink(event):events.append(event)
+        await runtime.run('修复 mean([]) 应返回 0 的问题，依据自动测试结果修正，保持正常输入行为。',sink)
+        observations=[e['result']['autotest'] for e in events if e['type']=='tool_result' and 'autotest' in e['result']]
+        tests.extend(observations)
+        runs.append({'completed':events[-1].get('status')=='completed','agent_observed_red':provider.red_seen,'statuses':[x['status'] for x in observations]})
+    red=sum(t['status']=='failed' for t in tests);green=sum(t['status']=='passed' for t in tests)
+    red_to_green=sum(r['agent_observed_red'] and r['statuses']==['failed','passed'] for r in runs)
+    (work/'stats.py').write_text((work/'stats.py').read_text(encoding='utf-8')+'\n# TODO: remove debug residue\n',encoding='utf-8')
+    review=await Reviewer(state,ReviewProvider()).review('审查 mean 空输入修复，检查五项清单。',['stats.py'],tools)
+    report={'agents_md':rule_report,'denied':denied,'autotest':{'runs':len(tests),'red':red,'green':green,'red_to_green':red_to_green,'injected_lines':max((t.get('injected_lines',0) for t in tests),default=0),'transitions':runs,'observations':tests},'reviewer':{'runs':1,'issues_found':int('新增差异包含' in review.get('summary','')),'main_context_delta':review.get('main_context_delta',0),'subagent_tokens':review.get('subagent_tokens',0),'context_isolated':review.get('context_isolated',False),'denied_writes':review.get('denied_writes',0),'diff_calls':review.get('diff_calls',0),'checklist':review.get('checklist',[]),'summary':review.get('summary','')},'test_tier':'controlled_provider; real Runtime, file edits, unittest subprocess and git diff; not live model quality','token_measure':TOKEN_MEASURE}
+    report['passed']=rule_report['found'] and rule_report['parent_search'] and rule_report['bytes']<=12000 and not rule_report['truncated'] and all(d['denied'] and d['reason'] and '替代方案' in d['reason'] for d in denied) and red_to_green>=1 and green>=1 and report['autotest']['injected_lines']<=3 and review.get('status')=='completed' and review.get('diff_calls',0)>=1 and report['reviewer']['issues_found']>=1 and review.get('denied_writes',0)>=1 and not (work/'review-probe.txt').exists() and 0<report['reviewer']['main_context_delta']<=500
+    return report

@@ -43,7 +43,7 @@ class ReviewFixture:
     def __init__(self):
         self.turn = 0
     async def complete(self, messages, definitions, emit):
-        assert [d['function']['name'] for d in definitions] == ['read']
+        assert [d['function']['name'] for d in definitions] == ['read','bash']
         self.turn += 1
         function = ('write', {'path':'review-probe.txt','content':'must not be created'}) if self.turn == 1 else ('read', {'path':'maths.py'})
         if self.turn <= 2:

@@ -1,50 +1,132 @@
 {
-  "agents_md": [
-    {
-      "layer": "global",
-      "loaded": true,
-      "line_count": 1,
-      "injected_bytes": 48,
-      "truncated": false
-    },
-    {
-      "layer": "project",
-      "loaded": true,
-      "line_count": 30,
-      "injected_bytes": 302,
-      "truncated": true
-    }
-  ],
+  "agents_md": {
+    "found": true,
+    "bytes": 321,
+    "layers": [
+      "global",
+      "project"
+    ],
+    "injected_bytes": 351,
+    "parent_search": true,
+    "truncated": false
+  },
   "denied": [
     {
-      "tool": "bash",
-      "denied": true,
-      "has_alternative": true
+      "tool": "write",
+      "path": ".env",
+      "reason": "已拦截凭据文件修改。替代方案：写入 .env.example 占位配置；真实模型 Key 在桌面设置填写。",
+      "denied": true
     },
     {
       "tool": "write",
-      "denied": true,
-      "has_alternative": true
+      "path": "secret.pem",
+      "reason": "已拦截凭据文件修改。替代方案：写入 .env.example 占位配置；真实模型 Key 在桌面设置填写。",
+      "denied": true
+    },
+    {
+      "tool": "bash",
+      "command": "rm -rf build/",
+      "reason": "已拦截递归删除命令。替代方案：先列出目标文件并逐项确认，使用范围明确的非递归操作。",
+      "denied": true
+    },
+    {
+      "tool": "bash",
+      "command": "git push --force",
+      "reason": "已拦截 Git 强制推送。替代方案：先 git diff 与 git status 核对，再普通 git push；撤销已提交更改用 git revert。",
+      "denied": true
+    },
+    {
+      "tool": "bash",
+      "command": "git reset --hard",
+      "reason": "已拦截 Git 强制重置。替代方案：先 git diff 检查；需要撤销提交用 git revert，需要恢复文件先预览再 git restore。",
+      "denied": true
     }
   ],
   "autotest": {
-    "status": "passed",
-    "syntax_ok": true,
-    "test": "test_maths.py",
-    "exit_code": 0,
-    "timed_out": false
+    "runs": 4,
+    "red": 2,
+    "green": 2,
+    "red_to_green": 2,
+    "injected_lines": 3,
+    "transitions": [
+      {
+        "completed": true,
+        "agent_observed_red": true,
+        "statuses": [
+          "failed",
+          "passed"
+        ]
+      },
+      {
+        "completed": true,
+        "agent_observed_red": true,
+        "statuses": [
+          "failed",
+          "passed"
+        ]
+      }
+    ],
+    "observations": [
+      {
+        "status": "failed",
+        "syntax_ok": true,
+        "test": "test_stats.py",
+        "exit_code": 1,
+        "timed_out": false,
+        "tests_run": 3,
+        "summary": "用例：test_empty_mean (test_stats.StatsTest.test_empty_mean)\r\n期望：0\r\n实际：1",
+        "injected_lines": 3
+      },
+      {
+        "status": "passed",
+        "syntax_ok": true,
+        "test": "test_stats.py",
+        "exit_code": 0,
+        "timed_out": false,
+        "tests_run": 3,
+        "summary": "用例：test_stats.py\n期望：所有断言通过\n实际：全部测试通过",
+        "injected_lines": 3
+      },
+      {
+        "status": "failed",
+        "syntax_ok": true,
+        "test": "test_stats.py",
+        "exit_code": 1,
+        "timed_out": false,
+        "tests_run": 3,
+        "summary": "用例：test_empty_mean (test_stats.StatsTest.test_empty_mean)\r\n期望：0\r\n实际：1",
+        "injected_lines": 3
+      },
+      {
+        "status": "passed",
+        "syntax_ok": true,
+        "test": "test_stats.py",
+        "exit_code": 0,
+        "timed_out": false,
+        "tests_run": 3,
+        "summary": "用例：test_stats.py\n期望：所有断言通过\n实际：全部测试通过",
+        "injected_lines": 3
+      }
+    ]
   },
   "reviewer": {
-    "status": "completed",
-    "allowed_tools": [
-      "read"
-    ],
+    "runs": 1,
+    "issues_found": 1,
+    "main_context_delta": 71,
+    "subagent_tokens": 2048,
+    "context_isolated": true,
     "denied_writes": 1,
-    "reads": 1,
-    "context_isolated": true
+    "diff_calls": 1,
+    "checklist": [
+      "有没有改到不该改的文件",
+      "有没有新增依赖",
+      "有没有 except: pass",
+      "测试有没有覆盖新分支",
+      "diff 里有没有 print( 或 TODO 调试残留"
+    ],
+    "summary": "已检查：改动范围、依赖、异常吞噬、新分支测试覆盖、调试残留。\nstats.py：新增差异包含 print/TODO 调试残留，应移除或完成。"
   },
-  "reviewer_test_tier": "controlled_provider_with_real_file_tools",
-  "parent_context_tokens": 416,
-  "token_measure": "UTF-8 byte upper bound; not billing",
+  "test_tier": "controlled_provider; real Runtime, file edits, unittest subprocess and git diff; not live model quality",
+  "token_measure": "tiktoken cl100k_base BPE; offline ranks; provider billing may differ",
   "passed": true
 }

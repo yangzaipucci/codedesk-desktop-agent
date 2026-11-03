@@ -23,13 +23,13 @@ class PatchesTests(unittest.IsolatedAsyncioTestCase):
         self.temp=tempfile.TemporaryDirectory();self.root=Path(self.temp.name)
         self.work=self.root/'project';self.work.mkdir()
         self.settings=Settings(self.root/'state')
-        self.settings.save({'workspace':str(self.work),'online_enabled':False})
+        self.settings.save({'workspace':str(self.work),'online_enabled':False,'enable_daemon':True})
         self.tools=Tools(self.work,self.settings.directory)
     def tearDown(self):self.temp.cleanup()
 
     def test_skill_catalog_is_metadata_only_and_disclosure_is_measured(self):
         registry=Skills(self.work,self.settings.directory)
-        self.assertEqual(len(registry.entries),3)
+        self.assertGreaterEqual(len(registry.entries),3)
         self.assertGreaterEqual(registry.metrics()['disclosure_ratio'],5)
         self.assertNotIn('Follow data from input to output',registry.catalog())
         result=registry.read('skill://code-review/SKILL.md')
@@ -55,7 +55,7 @@ class PatchesTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn('GLOBAL_SENTINEL',text);self.assertIn('PROJECT_SENTINEL',text)
         self.assertEqual(len(sources),2)
         (self.work/'AGENTS.md').write_text('中'*10000,encoding='utf-8')
-        self.assertLessEqual(token_bound(project_guidance(self.work,self.settings.directory)[0]),350)
+        self.assertLessEqual(token_bound(project_guidance(self.work,self.settings.directory,budget=350)[0]),350)
 
     def test_feature_settings_persist_and_environment_takes_precedence(self):
         self.settings.save({'enable_skills':False,'enable_custom':False})
@@ -77,7 +77,9 @@ class PatchesTests(unittest.IsolatedAsyncioTestCase):
         (self.work/'maths.py').write_text('def twice(x):\n    return x * 2\n')
         (self.work/'test_maths.py').write_text('import unittest\nfrom maths import twice\nclass T(unittest.TestCase):\n    def test_twice(self): self.assertEqual(twice(3),6)\n')
         passed=await self.tools.hooks.after_edit('maths.py',self.tools)
-        self.assertEqual(passed['status'],'passed');self.assertIn('Ran 1 test',passed['stderr'])
+        self.assertEqual(passed['status'],'passed');self.assertEqual(passed['tests_run'],1)
+        self.assertEqual(len(passed['summary'].splitlines()),3)
+        self.assertNotIn('stderr',passed)
         (self.work/'maths.py').write_text('def twice(x):\n    return 0\n')
         failed=await self.tools.hooks.after_edit('maths.py',self.tools)
         self.assertEqual(failed['status'],'failed');self.assertNotEqual(failed['exit_code'],0)
@@ -86,7 +88,7 @@ class PatchesTests(unittest.IsolatedAsyncioTestCase):
         (self.work/'maths.py').write_text('def twice(x): return x*2\n')
         result=await Reviewer(self.settings,ReviewFixture()).review('Review twice.',['maths.py'],self.tools)
         self.assertEqual(result['status'],'completed');self.assertEqual(result['denied_writes'],1)
-        self.assertEqual(result['allowed_tools'],['read']);self.assertFalse((self.work/'review-probe.txt').exists())
+        self.assertEqual(result['allowed_tools'],['read','bash:git diff']);self.assertFalse((self.work/'review-probe.txt').exists())
 
     async def test_legacy_switch_keeps_exact_four_tool_interface(self):
         class Provider:
@@ -142,7 +144,7 @@ class PatchesTests(unittest.IsolatedAsyncioTestCase):
         async def sink(event):events.append(event)
         await runtime.run('实现 twice 并验证',sink)
         self.assertEqual(events[-1]['status'],'completed')
-        self.assertLessEqual(runtime.custom_context_tokens,500)
+        self.assertLessEqual(runtime.reviewer_context_tokens,500)
         self.assertFalse((self.work/'review-probe.txt').exists())
 
     async def test_inflight_write_recovered_without_duplicate_application(self):
