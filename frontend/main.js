@@ -201,3 +201,18 @@ window.addEventListener('beforeunload',e=>{if([...documents.values()].some(d=>d.
 (async()=>{try{syncConfig(await api('settings'));await loadFiles();const history=await api('history');if(history.mode)setMode(history.mode);for(const event of compactEvents(history.events))receive(event);}catch(value){error(value);}})();
 
 watchCompletions(api,toast);
+
+const remoteDialog = $('remotePanel');
+const remoteFrame = $('remoteFrame');
+$('openRemote').addEventListener('click', () => {
+  if (!remoteFrame.hasAttribute('src')) remoteFrame.src = '/remote';
+  remoteDialog.showModal();
+});
+$('closeRemote').addEventListener('click', () => remoteDialog.close());
+remoteDialog.addEventListener('close', () => $('openRemote').focus());
+window.addEventListener('message', event => {
+  if (remoteDialog.open && event.origin === location.origin &&
+      event.source === remoteFrame.contentWindow && event.data === 'codedesk:close-remote') {
+    remoteDialog.close();
+  }
+});

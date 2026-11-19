@@ -176,6 +176,21 @@ class Tools:
             env['CODEDESK_PROJECT_PYTHON'] = '1'
         process = await asyncio.create_subprocess_exec(*args, cwd=self.workspace, env=env, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, **options)
 
+        command_job = None
+        if os.name == 'nt' and process.returncode is None:
+            import win32api, win32con, win32job, pywintypes
+            try:
+                command_job = win32job.CreateJobObject(None, '')
+                handle = win32api.OpenProcess(win32con.PROCESS_SET_QUOTA | win32con.PROCESS_TERMINATE, False, process.pid)
+                try:
+                    win32job.AssignProcessToJobObject(command_job, handle)
+                finally:
+                    handle.Close()
+            except pywintypes.error:
+                if command_job:
+                    command_job.Close()
+                command_job = None
+
         async def collect(stream, channel):
             kept, length, total = [], 0, 0
             while chunk := await stream.read(4096):
@@ -190,9 +205,16 @@ class Tools:
             return "".join(kept), total > MAX_OUTPUT
 
         async def stop_tree():
-            if os.name == "nt":
+            if command_job is not None:
+                win32job.TerminateJobObject(command_job, 1)
+            elif os.name == "nt":
                 killer = await asyncio.create_subprocess_exec("taskkill", "/PID", str(process.pid), "/T", "/F", stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL, creationflags=subprocess.CREATE_NO_WINDOW)
-                await killer.wait()
+                exit_code = await killer.wait()
+                if exit_code and process.returncode is None:
+                    try:
+                        process.kill()
+                    except ProcessLookupError:
+                        pass
             else:
                 try:
                     os.killpg(process.pid, signal.SIGKILL)
@@ -214,6 +236,9 @@ class Tools:
             await stop_tree()
             await asyncio.gather(stdout_task, stderr_task, return_exceptions=True)
             raise
+        finally:
+            if command_job is not None:
+                command_job.Close()
         clean = [item if isinstance(item, tuple) else ("", True) for item in results]
         return {"ok": process.returncode == 0 and not timed_out, "stdout": clean[0][0], "stderr": clean[1][0], "exit_code": process.returncode, "timed_out": timed_out, "truncated": clean[0][1] or clean[1][1]}
 

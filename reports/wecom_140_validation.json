@@ -1,0 +1,122 @@
+{
+  "version": "1.4.0",
+  "base_version": "1.3.1",
+  "base_zip": "新—沐光小组（MA34杨子菡、MP05辛芳兰、MP04沈思妤、MP01包晗）.zip",
+  "base_zip_sha256": "a087a7a6e6a47d6cf349f5abca5a59baeeee9ab468d6e85de115969907f61180",
+  "python_test_environment": "Offline Windows event-loop adapter and isolated credential vault; actual Runtime and file operations",
+  "python": {
+    "tests": 145,
+    "errors": [],
+    "failures": [],
+    "skipped": [],
+    "seconds": 73.58,
+    "passed": true
+  },
+  "frontend": {
+    "tests": 5,
+    "passed": 5
+  },
+  "wecom": {
+    "transport": "outbound WebSocket single chat",
+    "protocol_e2e": "simulated platform, subscribe through file pickup with byte comparison",
+    "live_tenant_tested": false
+  },
+  "browser": {
+    "passed": true,
+    "channel": "local",
+    "status": "completed",
+    "actions": [
+      "upload csv",
+      "stage request",
+      "submit",
+      "append",
+      "approve",
+      "read",
+      "write",
+      "download",
+      "query files"
+    ],
+    "tools": [
+      "read",
+      "write"
+    ],
+    "updates_applied": [
+      true
+    ],
+    "attachment_bytes": 69,
+    "artifact": {
+      "name": "实验检查报告.md",
+      "path": ".codedesk/outputs/a87b342033c3/实验检查报告.md",
+      "size": 322,
+      "sha256": "4f64662f5c319698fb8db8ee572f32c2944b2587259416da17b9e5c064507ef0"
+    },
+    "browser": "157.0.8103.80",
+    "live_wecom": false
+  },
+  "portable": {
+    "passed": true,
+    "python": "3.13.17",
+    "api_auth": 401,
+    "project": "bundled app",
+    "tool_events": [
+      "read",
+      "write"
+    ],
+    "report_sha256": "4f64662f5c319698fb8db8ee572f32c2944b2587259416da17b9e5c064507ef0",
+    "notes": "Bundled Python and rebuilt app, in-process ASGI transport, controlled model. Native installer GUI and live Tencent not exercised."
+  },
+  "video": {
+    "duration_seconds": 107.685,
+    "width": 1440,
+    "height": 974,
+    "captured_frames": 496,
+    "fps": 12,
+    "narrated_chapters": 8,
+    "video": "H.264",
+    "audio": "AAC",
+    "all_streams_decoded": true
+  },
+  "installer": {
+    "signed": false,
+    "compiled": true,
+    "installed_on_this_host": false
+  },
+  "source_changes": [
+    "CHANGELOG.md",
+    "README.md",
+    "agent/runtime.py",
+    "agent/tools.py",
+    "frontend/build.mjs",
+    "frontend/index.html",
+    "package-lock.json",
+    "package.json",
+    "pyproject.toml",
+    "scripts/build_portable.py",
+    "scripts/installer.iss",
+    "server/app.py",
+    "ui/THIRD_PARTY_NOTICES.txt",
+    "ui/app.js",
+    "ui/app.js.LEGAL.txt",
+    "ui/index.html"
+  ],
+  "source_additions": [
+    "agent/remote.py",
+    "agent/wecom.py",
+    "agent/wecom_media.py",
+    "docs/wecom-guide.md",
+    "examples/wecom-demo.csv",
+    "frontend/remote.css",
+    "frontend/remote.html",
+    "frontend/remote.js",
+    "reports/wecom_140_validation.json",
+    "scripts/demo_remote.py",
+    "scripts/offline_validation.py",
+    "server/remote.py",
+    "tests/test_remote.py",
+    "tests/test_wecom_flow.py",
+    "tests/test_wecom_media.py",
+    "ui/remote.css",
+    "ui/remote.html",
+    "ui/remote.js"
+  ]
+}

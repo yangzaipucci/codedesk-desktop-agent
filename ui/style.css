@@ -20,3 +20,10 @@ dialog{padding:0;border:1px solid var(--border);border-radius:15px;background:va
 .patch-option{margin:12px 0}.advanced>.help{margin:14px 0}
 
 .autotest-state{font-size:10px;margin:5px 8px;color:var(--muted)}.autotest-state.passed{color:var(--green)}.autotest-state.failed{color:var(--danger)}
+
+#remotePanel { width:min(96vw,1600px); max-width:96vw; height:92vh; max-height:94vh; padding:0; border:1px solid #718779; border-radius:10px; overflow:hidden; }
+#remotePanel[open] { display:flex; flex-direction:column; }
+#remotePanel > header { display:flex; align-items:center; justify-content:space-between; flex:none; padding:8px 16px; border-bottom:1px solid #879a8c; }
+#remotePanel h2 { margin:0; font-size:15px; } #remotePanel header button { padding:6px 10px; cursor:pointer; }
+#remoteFrame { width:100%; flex:1; min-height:0; border:0; }
+#demoScope { margin:0; padding:4px 12px; background:#fff2c9; color:#684b12; font-size:12px; }

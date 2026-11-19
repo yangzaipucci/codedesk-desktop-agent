@@ -28,7 +28,7 @@ def resources() -> Path:
     return Path(sys._MEIPASS) if getattr(sys, "frozen", False) else Path(__file__).resolve().parents[1]
 
 
-def create_app(settings=None, token=None, runtime=None):
+def create_app(settings=None, token=None, runtime=None, remote_runtime_factory=None):
     settings = settings or Settings()
     token = token or secrets.token_urlsafe(32)
     runtime = runtime or Runtime(settings,restore=True)
@@ -40,6 +40,8 @@ def create_app(settings=None, token=None, runtime=None):
     app.state.scheduler_task = None
     app.state.scheduler_busy = False
     app.state.jobs = TaskQueue(settings)
+    from server.remote import install_remote
+    install_remote(app, settings, token, resources(), remote_runtime_factory)
     style_nonce = secrets.token_urlsafe(24)
 
     async def shutdown():
@@ -61,10 +63,13 @@ def create_app(settings=None, token=None, runtime=None):
             return JSONResponse({"error": settings.redact(str(error))}, status_code=400)
         response.headers["Cache-Control"] = "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
-        response.headers["Content-Security-Policy"] = f"default-src 'self'; script-src 'self'; style-src 'self' 'nonce-{style_nonce}'; img-src 'self' data:; connect-src 'self' ws://127.0.0.1:*; frame-ancestors 'none'; base-uri 'none'"
+        ancestors = "'self'" if request.url.path == "/remote" else "'none'"
+        response.headers["Content-Security-Policy"] = f"default-src 'self'; script-src 'self'; style-src 'self' 'nonce-{style_nonce}'; img-src 'self' data:; connect-src 'self' ws://127.0.0.1:*; frame-ancestors {ancestors}; base-uri 'none'"
         return response
 
     def idle():
+        if app.state.remote.busy:
+            raise HTTPException(409, '远程任务正在执行，请在微信任务中心暂停或取消后操作。')
         if app.state.scheduler_busy:
             raise HTTPException(409, '定时技能正在执行，请等待或停止定时任务。')
         if app.state.daemon_task and not app.state.daemon_task.done():
@@ -99,7 +104,7 @@ def create_app(settings=None, token=None, runtime=None):
             return {'status':'running'}
         async def loop():
             while True:
-                if (runtime.active is None or runtime.active.done()) and not app.state.jobs.busy and (app.state.terminal is None or app.state.terminal.done()) and (app.state.daemon_task is None or app.state.daemon_task.done()):
+                if not app.state.remote.busy and (runtime.active is None or runtime.active.done()) and not app.state.jobs.busy and (app.state.terminal is None or app.state.terminal.done()) and (app.state.daemon_task is None or app.state.daemon_task.done()):
                     app.state.scheduler_busy=True
                     try:
                         await Scheduler(settings).tick(path)
@@ -150,6 +155,8 @@ def create_app(settings=None, token=None, runtime=None):
 
     @app.post('/api/tasks')
     async def add_task(request: Request):
+        if app.state.remote.busy:
+            raise HTTPException(409, '远程任务正在执行，请等待完成或取消。')
         if (runtime.active and not runtime.active.done()) or (app.state.terminal and not app.state.terminal.done()):
             raise HTTPException(409, '请先完成对话或终端命令。')
         data = await request.json()
@@ -216,6 +223,8 @@ def create_app(settings=None, token=None, runtime=None):
     @app.get("/")
     async def index():
         html = (resources() / "ui" / "index.html").read_text(encoding="utf-8")
+        if getattr(app.state.remote, 'demonstration', False):
+            html = html.replace('<div class="top-actions">', '<div class="top-actions"><small id="demoScope">离线示例</small>', 1)
         return HTMLResponse(html.replace("__BOOT_TOKEN__", token).replace('__STYLE_NONCE__', style_nonce))
 
     @app.post('/api/terminal')

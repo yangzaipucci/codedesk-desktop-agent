@@ -94,8 +94,15 @@ def main():
     for name in ['app.py','mcp_demo.py','mcp_network.py','LICENSE','AGENTS.md']:
         shutil.copy2(ROOT/name,application/name)
     (destination/'Start-CodeDesk.cmd').write_text('@echo off\nsetlocal\ncd /d "%~dp0"\nstart "" "%~dp0runtime\\pythonw.exe" "%~dp0app\\app.py"\n',encoding='ascii')
+    (application/'scripts').mkdir(exist_ok=True)
+    shutil.copy2(ROOT/'scripts/demo_remote.py', application/'scripts/demo_remote.py')
+    (destination/'Start-Demo.cmd').write_text('@echo off\ncd /d "%~dp0"\nruntime\\python.exe -B app\\scripts\\demo_remote.py --open --port 0\nif errorlevel 1 pause\n',encoding='ascii')
     (destination/'使用说明.txt').write_text('双击 Start-CodeDesk.cmd 打开 CodeDesk。\n完整保留 app 和 runtime 文件夹。\n在桌面设置中选择模型服务并填写自己的 API Key。\n支持浅深主题、多标签编辑、项目搜索、文件上下文、终端和五种助手模式。\n',encoding='utf-8-sig')
-    revision=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
+    revision = None
+    if (ROOT/'.git').exists() and shutil.which('git'):
+        result = subprocess.run(['git','rev-parse','HEAD'], cwd=ROOT, capture_output=True, text=True)
+        if result.returncode == 0:
+            revision = result.stdout.strip()
     report={'version':version,'source_commit':revision,'python_version':PYTHON_VERSION,'python_source':url,'python_archive_sha256':sha(archive),'created_utc':datetime.now(timezone.utc).isoformat(),'files':[{ 'path':p.relative_to(destination).as_posix(),'sha256':sha(p)} for p in sorted(destination.rglob('*')) if p.is_file() and '__pycache__' not in p.parts]}
     (destination/'portable-manifest.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
     output=ROOT/'release/portable'/version

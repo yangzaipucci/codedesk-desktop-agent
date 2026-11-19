@@ -56,6 +56,7 @@ Source: "{#SourceRoot}\*"; DestDir: "{app}"; Excludes: "*.pyc,*.pyo"; Flags: ign
 
 [Icons]
 #ifdef RuntimeBundle
+Name: "{group}\CodeDesk Demo"; Filename: "{app}\Start-Demo.cmd"; WorkingDir: "{app}"
 Name: "{group}\CodeDesk"; Filename: "{app}\runtime\pythonw.exe"; Parameters: "-m app"; WorkingDir: "{app}"
 Name: "{autodesktop}\CodeDesk"; Filename: "{app}\runtime\pythonw.exe"; Parameters: "-m app"; WorkingDir: "{app}"; Tasks: desktopicon
 #else

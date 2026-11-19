@@ -1,0 +1,103 @@
+{
+  "version": "1.4.1",
+  "original_archive": "新—沐光小组（MA34杨子菡、MP05辛芳兰、MP04沈思妤、MP01包晗）.zip",
+  "original_sha256": "a087a7a6e6a47d6cf349f5abca5a59baeeee9ab468d6e85de115969907f61180",
+  "compared_by": "relative paths and SHA-256",
+  "original_source_files": 150,
+  "original_source_files_present_in_140": 150,
+  "source_identical_131_to_140": 134,
+  "original_source_files_present_in_141": 150,
+  "source_identical_131_to_141": 131,
+  "changed_since_131": [
+    "CHANGELOG.md",
+    "README.md",
+    "agent/runtime.py",
+    "agent/tools.py",
+    "frontend/build.mjs",
+    "frontend/index.html",
+    "frontend/main.js",
+    "frontend/styles.css",
+    "package-lock.json",
+    "package.json",
+    "pyproject.toml",
+    "scripts/build_portable.py",
+    "scripts/installer.iss",
+    "server/app.py",
+    "ui/THIRD_PARTY_NOTICES.txt",
+    "ui/app.js",
+    "ui/app.js.LEGAL.txt",
+    "ui/index.html",
+    "ui/style.css"
+  ],
+  "original_portable_app_files_present": 66,
+  "unchanged_modules": {
+    "agent/skills.py": true,
+    "agent/hooks.py": true,
+    "agent/reviewer.py": true,
+    "agent/scheduler.py": true,
+    "agent/daemon.py": true,
+    "agent/changes.py": true,
+    "agent/mcp_client.py": true,
+    "agent/settings.py": true,
+    "agent/capabilities.py": true,
+    "agent/workspace.py": true,
+    "agent/notifications.py": true
+  },
+  "baseline_items_verified": {
+    "02_便携运行/CodeDesk/runtime/": 3308,
+    "04_报告与说明/": 38,
+    "05_演示视频/": 5
+  },
+  "unittests": 147,
+  "tests_passed": true,
+  "frontend_tests_passed": 5,
+  "legacy_sections_passed": [
+    "skills",
+    "custom",
+    "daemon"
+  ],
+  "system_toast_exercised": false,
+  "new_integrated_browser": {
+    "passed": true,
+    "transport": "real bundled ASGI HTTP routes via local test IPC",
+    "entry": "/",
+    "modes": 5,
+    "feature_flags": {
+      "skills": true,
+      "custom": true,
+      "hooks": true,
+      "autotest": true,
+      "reviewer": true,
+      "daemon": true,
+      "scheduler": true,
+      "resume": true,
+      "notifications": true
+    },
+    "skills": [
+      "code-review",
+      "fetch-issue",
+      "python-tests",
+      "review-diff",
+      "run-tests",
+      "web-research"
+    ],
+    "unsaved_editor_preserved": true,
+    "chat_draft_preserved": true,
+    "mode_preserved": true,
+    "report_download": true,
+    "mean_tv": 0.1167,
+    "desktop_reload": false,
+    "live_tenant": false
+  },
+  "source_and_distribution_match": true,
+  "media": {
+    "seconds": 75.81,
+    "actual_browser_screenshots": 6,
+    "audio_video_decode": true
+  },
+  "original_videos": 2,
+  "original_guide_files": 38,
+  "installer_compiled_unsigned": true,
+  "installed_to_user_profile": false,
+  "live_wecom": false
+}

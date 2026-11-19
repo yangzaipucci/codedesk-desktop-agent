@@ -15,4 +15,5 @@ for(const path of Object.keys(lock.packages||{}).filter(p=>p.startsWith('node_mo
   }
 }
 await writeFile('ui/THIRD_PARTY_NOTICES.txt',notices);
+for (const name of ['remote.html','remote.js','remote.css']) await copyFile('frontend/'+name,'ui/'+name);
 console.log('Offline desktop UI built.');

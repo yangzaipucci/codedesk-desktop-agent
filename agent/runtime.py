@@ -137,6 +137,11 @@ class Runtime:
                 definitions = [d for d in DEFINITIONS if mode not in READ_ONLY or d['function']['name']=='read'] + await mcp.discover(emit)
                 allowed = {d['function']['name'] for d in definitions}
                 for step in range(config["max_steps"]):
+                    # Remote changes enter only between complete tool-call rounds.
+                    # Ordinary desktop sessions retain their existing behavior.
+                    boundary = getattr(self, 'control_boundary', None)
+                    if boundary is not None:
+                        await boundary()
                     if self.compact_context():
                         await emit({"type": "status", "text": "对话较长，已移除较早的完整轮次以保留当前任务上下文。"})
                     # Conservative context estimate keeps providers without usage below a budget.
